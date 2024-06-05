@@ -92,7 +92,7 @@ export default function Home() {
       <section className="my-12 px-3">
         <div className="max-w-screen-2xl mx-auto my-6 lg:my-8">
           <div className=" bg-transparent grid sm:grid-cols-2 lg:grid-cols-3 grid-flow-row gap-3 w-full">
-            <div className="card rounded-md bg-transparent w-full px-5 py-4 border-orange-200 dark:border-default drop-shadow-md shadow-inner">
+            <div className="card rounded-md bg-transparent w-full px-5 py-4 border-emerald-200 dark:border-default drop-shadow-md shadow-inner">
               <h3 className="font-bold py-3">Pending in-stock</h3>
 
               <p>
@@ -102,7 +102,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="card rounded-md bg-transparent w-full px-5 py-4 border-orange-200 dark:border-default drop-shadow-md shadow-inner">
+            <div className="card rounded-md bg-transparent w-full px-5 py-4 border-emerald-200 dark:border-default drop-shadow-md shadow-inner">
               <h3 className="font-bold py-3">Pending out-stock</h3>
 
               <p>
@@ -123,7 +123,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="card rounded-md bg-transparent w-full px-5 py-4 border-orange-200 dark:border-default drop-shadow-md shadow-inner">
+            <div className="card rounded-md bg-transparent w-full px-5 py-4 border-emerald-200 dark:border-default drop-shadow-md shadow-inner">
               <h3 className="font-bold py-3">You tasks</h3>
 
               <p>

@@ -46,9 +46,12 @@ export const siteConfig = {
 export const siteFooter = {
 	termsAndConditions: [
 		{
-			label: "© 2024 Brainbox Research Institute",
+			label: "© 2024 Blochain Inventory Management System",
 			href: internalUrls.home,
 		},
+	],
+
+	socialLinks: [
 		{
 			label: "Terms",
 			href: internalUrls.home,
@@ -57,38 +60,9 @@ export const siteFooter = {
 			label: "Privacy",
 			href: internalUrls.home,
 		},
-	],
-
-	socialLinks: [
 		{
-			label: "Youtube",
-			icon: "© 2024 Brainbox Research Institute",
-			href: internalUrls.home,
-		},
-		{
-			label: "LinkedIn",
-			icon: "© 2024 Brainbox Research Institute",
-			href: internalUrls.home,
-		},
-		{
-			label: "Google Scholar",
-			icon: "© 2024 Brainbox Research Institute",
-			href: internalUrls.home,
-		},
-		{
-			label: "Twitter | X",
-			icon: "© 2024 Brainbox Research Institute",
-			href: internalUrls.home,
-		},
-		{
-			label: "Facebook",
-			icon: "© 2024 Brainbox Research Institute",
-			href: internalUrls.home,
-		},
-		{
-			label: "Whatsapp",
-			icon: "© 2024 Brainbox Research Institute",
-			href: internalUrls.home,
+			label: "Docs",
+			href: internalUrls.docs,
 		},
 	],
 

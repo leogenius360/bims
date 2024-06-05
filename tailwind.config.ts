@@ -17,7 +17,7 @@ const config: Config = {
       },
       colors: {
         border: '#fb923c',
-        primary: '#f97316',
+        primary: '#059669',
       },
     },
   },

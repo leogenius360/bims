@@ -6,7 +6,7 @@
 @layer components {
 
     .card {
-        @apply bg-zinc-50 dark:bg-zinc-800 border-1 border-orange-200 dark:border-default drop-shadow;
+        @apply bg-zinc-50 dark:bg-zinc-800 border-1 border-emerald-200 dark:border-default drop-shadow;
     }
 
     .swiper-button-next, .swiper-button-prev{

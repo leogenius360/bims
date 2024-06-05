@@ -37,7 +37,7 @@ export const UserProfile = () => {
           key="profile"
           showDivider
           className="border-default cursor-default data-[hover=true]:bg-transparent data-[selectable=true]:focus:bg-transparent"
-          classNames={{ base: "bg-orange" }}
+          classNames={{ base: "bg-emerald" }}
         >
           <User
             name="Junior Leo"

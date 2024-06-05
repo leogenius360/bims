@@ -38,7 +38,7 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
 					{children}
 				</Providers>
 
-				<footer className="card border-none border-t-1 py-3 px-4">
+				<footer className="card border-0 border-t-1 border-emerald-200 dark:border-default py-3 px-4 shadow-inner shadow-emerald-50 dark:shadow-default">
 					<div className="max-w-screen-2xl mx-auto flex flex-wrap justify-center md:justify-between gap-x-6 gap-y-2 text-sm">
 						<div className="inline-flex flex-nowrap gap-x-6">
 							{siteFooter.termsAndConditions.map((item) => (
@@ -54,7 +54,7 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
 
 						
 						<div className="inline-flex flex-nowrap gap-x-6">
-							{siteFooter.termsAndConditions.map((item) => (
+							{siteFooter.socialLinks.map((item) => (
 								<Link target="blank" key={item.href}
 									className="flex flex-wrap items-center gap-1 text-current hover:text-sky-600 hover:underline underline-offset-2"
 									href={item.href}
