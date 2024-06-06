@@ -4,17 +4,23 @@ import Link from "next/link";
 import { Button, Card, CardBody, Image, Tab, Tabs } from "@nextui-org/react";
 import { FiChevronsRight } from "react-icons/fi";
 
-function buldTabItem() {
+function buldStatItem({
+  title,
+  currentFigure,
+  diff,
+}: {
+  title: string;
+  currentFigure: number;
+  diff: number;
+}) {
   return (
-    <div className="card flex w-full flex-row rounded border-emerald-200 shadow-inner drop-shadow-md hover:underline hover:shadow-md dark:border-default">
-      <div className="px-2 text-xs lg:px-3">
-        <small className="inline-block py-1 font-bold text-primary">
-          TYPE HERE
-        </small>
-        <p className="pb-2 text-medium font-semibold leading-tight">
-          Some quick example text to build on the card title and make up the
-          bulk of the car&apos;s content.
-        </p>
+    <div className="card flex w-full flex-row rounded border-emerald-200 shadow-inner drop-shadow-md hover:shadow-md dark:border-default">
+      <div className="w-full px-3 py-2 text-xs">
+        <h6 className="inline-block py-1 font-bold text-primary">{title}</h6>
+        <div className="flex items-baseline w-full">
+          <span className="text-2xl font-bold mr-auto">{currentFigure}</span>
+          <small className="font-bold text-xs">{diff} </small>
+        </div>
       </div>
     </div>
   );
@@ -25,19 +31,47 @@ interface TabProps {}
 function buildTabContent({ tabItems }: any) {
   const tabContent = (
     <>
-      <Link href={"/"}>{buldTabItem()}</Link>
-
-      <Link href={"/"}>{buldTabItem()}</Link>
-
-      <Link href={"/"}>{buldTabItem()}</Link>
-
-      <Link href={"/"}>{buldTabItem()}</Link>
+      {buldStatItem({
+        title: "TOTAL REVENUE (GHC)",
+        currentFigure: 6833,
+        diff: 16,
+      })}
+      {buldStatItem({
+        title: "TOTAL OUT-STOCK (QTY)",
+        currentFigure: 126,
+        diff: 16,
+      })}
+      {buldStatItem({
+        title: "TOTAL IN-STOCK (QTY)",
+        currentFigure: 126,
+        diff: 16,
+      })}
+      {buldStatItem({
+        title: "TOTAL EXPENSES (GHC)",
+        currentFigure: 126,
+        diff: 16,
+      })}
+      {buldStatItem({
+        title: "TOTAL TRANSACTIONS (QTY)",
+        currentFigure: 126,
+        diff: 16,
+      })}
+      {buldStatItem({
+        title: "PENDING VERIFICATION (QTY)",
+        currentFigure: 126,
+        diff: 16,
+      })}
+      {buldStatItem({
+        title: "INVALID TRANSACTIONS (QTY)",
+        currentFigure: 126,
+        diff: 16,
+      })}
     </>
   );
   return tabContent;
 }
 
-export const ShowcaseTab = () => {
+export const DashboardStats = () => {
   // const getTabs = [3, 3, 3]
 
   // let tabs: any = []
@@ -80,7 +114,7 @@ export const ShowcaseTab = () => {
         tabContent: "dark:text-white group-data-[selected=true]:text-primary",
         cursor: "w-full bg-primary rounded-md",
         panel:
-          "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-flow-row gap-3 lg:gap-5 px-0 py-6",
+          "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 grid-flow-row gap-3 lg:gap-5 px-0 py-6",
       }}
     >
       {(item) => (

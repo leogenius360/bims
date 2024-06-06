@@ -1,5 +1,5 @@
 import { Image } from "@nextui-org/react";
-import { ShowcaseTab, StockOverview } from "@/components/showcase";
+import { DashboardStats, StockOverview } from "@/components/showcase";
 import { Logo } from "@/components/icons";
 import { siteConfig } from "@/config/site";
 
@@ -7,11 +7,11 @@ export default function Home() {
   return (
     <>
       <section className="mx-auto px-3">
-        <ShowcaseTab />
+        <DashboardStats />
       </section>
 
-      <section className="mx-auto px-3">
-        <div className="grid w-full max-w-screen-2xl grid-flow-row gap-3 bg-transparent sm:grid-cols-2 lg:grid-cols-3">
+      <section className="max-w-screen-2xl mx-auto px-3 xl:px-0">
+        <div className="grid w-full grid-flow-row gap-3 bg-transparent sm:grid-cols-2 lg:grid-cols-3">
           <div className="card w-full rounded-md border-emerald-200 bg-transparent px-5 py-4 shadow-inner drop-shadow-md dark:border-default">
             <h3 className="py-3 font-bold">Resent in-stock</h3>
 
