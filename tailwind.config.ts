@@ -10,6 +10,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '525px',
+        // => @media (min-width: 525px) { ... }
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
