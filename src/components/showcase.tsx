@@ -17,9 +17,9 @@ function buldStatItem({
     <div className="card flex w-full flex-row rounded border-emerald-200 shadow-inner drop-shadow-md hover:shadow-md dark:border-default">
       <div className="w-full px-3 py-2 text-xs">
         <h6 className="inline-block py-1 font-bold text-primary">{title}</h6>
-        <div className="flex items-baseline w-full">
-          <span className="text-2xl font-bold mr-auto">{currentFigure}</span>
-          <small className="font-bold text-xs">{diff} </small>
+        <div className="flex w-full items-baseline">
+          <span className="mr-auto text-2xl font-bold">{currentFigure}</span>
+          <small className="text-xs font-bold">{diff} </small>
         </div>
       </div>
     </div>
@@ -105,8 +105,7 @@ export const DashboardStats = () => {
       items={tabs}
       variant="underlined"
       classNames={{
-        wrapper:
-          "max-w-screen-2xl mx-auto gap-3 flex-wrap lg:flex-nowrap justify-between py-5",
+        wrapper: "mx-auto gap-3 flex-wrap lg:flex-nowrap justify-between py-5",
         base: "w-full",
         tabList:
           "gap-6 overflow-x-auto scrollbar custom-scrollbar thumb-none p-0 ",
@@ -128,7 +127,7 @@ export const DashboardStats = () => {
 
 function buldStockItemOverview() {
   return (
-    <div className="card xs:min-w-80 mb-2 flex min-w-full snap-start flex-row rounded border-emerald-200 shadow-inner dark:border-default">
+    <div className="card mb-2 flex min-w-full snap-start flex-row rounded border-emerald-200 shadow-inner xs:min-w-80 dark:border-default">
       <Image
         classNames={{
           img: "object-cover max-w-[6em] h-full rounded-l-md",
@@ -154,7 +153,7 @@ function buldStockItemOverview() {
 
 export const StockOverview = () => {
   return (
-    <div className="mx-auto max-w-screen-2xl">
+    <div className="mx-auto my-5 inline-block w-full">
       <h3 className="py-3 font-bold text-primary">
         Current stock overview
         <hr className="h-[0.16rem] w-44 bg-primary" />

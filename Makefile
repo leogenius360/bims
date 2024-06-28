@@ -32,5 +32,7 @@ clean: ## Clean files
 
 deep-clean: ## Delete all node_modules and re-install them
 	npm cache clean --force
+	rm -rf .next
+	rm -rf build
 	rm -rf node_modules
 	npm install

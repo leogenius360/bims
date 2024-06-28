@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Button } from '@nextui-org/react'
-import { internalUrls } from '@/config/site'
+import { internalUrls } from '@/config/site-config'
  
  
 export default function GlobalNotFound() {

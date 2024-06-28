@@ -1,9 +1,10 @@
 
 import { Metadata } from "next";
-import { siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site-config";
 import clsx from "clsx";
-import { Navbar } from "@/components/navbar";
 import Link from "next/link";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
 
 
 export const metadata: Metadata = {
@@ -23,8 +24,13 @@ export const metadata: Metadata = {
 
 export default function DocsLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
 	return (
-		<section>
+		<main className="min-h-screen flex flex-col justify-between">
+		<Navbar />
+		<section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
 			{children}
 		</section>
+  
+		<Footer />
+	  </main>
 	);
 }

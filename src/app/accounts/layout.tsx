@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import { Link } from "@nextui-org/link";
-import clsx from "clsx";
 import { siteConfig } from "@/config/site-config";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: {
@@ -17,21 +17,16 @@ export const metadata: Metadata = {
   keywords: "Brainbox Research Institute",
 };
 
-export function generateStaticParams() {
-  return [
-    { slug: "leo" },
-    { slug: "genius" },
-    { slug: "bbri" },
-    { slug: "no-name" },
-  ];
-}
-
-export default function AccountSettingsLayout({
+export default function AuthLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: { slug: string };
 }) {
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen flex flex-col justify-between">
+      <Navbar />
+      {children}
+      <Footer />
+    </div>
+  );
 }

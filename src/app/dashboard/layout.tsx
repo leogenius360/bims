@@ -4,33 +4,23 @@ import { useState } from "react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { NavbarContent, Button, NavbarBrand, Navbar } from "@nextui-org/react";
-import { FiX, FiMenu, FiPhone } from "react-icons/fi";
+import { FiX, FiMenu, FiPhone, FiPlus } from "react-icons/fi";
 import clsx from "clsx";
-import { siteConfig } from "@/config/site";
+import { internalUrls, siteConfig } from "@/config/site-config";
 import { Logo } from "@/components/icons";
 import { SingleThemeSwitch } from "@/components/theme-switch";
 import { UserProfile } from "@/components/user_profile";
 import useWindowSize from "@/lib/window_size";
-
-// export const metadata: Metadata = {
-//   title: {
-//     default: 	"Dashboard",
-//     template: `%s - ${siteConfig.shortName}`,
-//   },
-//   description: siteConfig.description,
-//   icons: {
-//     icon: "/favicon.ico",
-//     shortcut: "/favicon-16x16.png",
-//     apple: "/apple-touch-icon.png",
-//   },
-//   keywords: "Brainbox Research Institute",
-// };
+import { Footer } from "@/components/footer";
+import { useLoginRequired } from "@/auth/provider";
 
 export default function LandingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useLoginRequired();
+
   const { width } = useWindowSize();
   const [isMenuOpen, setIsMenuOpen] = useState(
     width && width < 768 ? true : false,
@@ -41,7 +31,7 @@ export default function LandingLayout({
     <>
       <Navbar
         isBordered
-        maxWidth="2xl"
+        maxWidth="full"
         className="border-b-1 border-emerald-100 shadow shadow-emerald-100 dark:border-default dark:shadow-none"
         classNames={{ wrapper: "px-2 lg:px-6" }}
       >
@@ -62,7 +52,10 @@ export default function LandingLayout({
             >
               <Logo />
               <p className="" aria-label="Genius Tech Space">
-                {siteConfig.shortName}
+                <span className="md:hidden">{siteConfig.shortName}</span>
+                <span className="hidden md:inline-block">
+                  {siteConfig.name}
+                </span>
               </p>
             </NextLink>
           </NavbarBrand>
@@ -79,7 +72,7 @@ export default function LandingLayout({
           ) : (
             <Button
               as={NextLink}
-              href="/dashboard"
+              href={internalUrls.login}
               radius="sm"
               color="primary"
               variant="light"
@@ -93,15 +86,16 @@ export default function LandingLayout({
 
           <Button
             as={NextLink}
+            isIconOnly={width && width < 640 ? true : false}
             size="sm"
             href="/dashboard"
             radius="sm"
             color="primary"
             variant="ghost"
-            endContent={<FiPhone />}
-            className="hidden text-sm font-semibold ring-1 ring-emerald-600 ring-offset-1 lg:flex dark:text-white dark:ring-offset-gray-800"
+            startContent={<FiPlus />}
+            className="text-sm font-semibold ring-1 ring-emerald-600 ring-offset-1 dark:text-white dark:ring-offset-gray-800"
           >
-            New transaction
+            <span className="hidden sm:flex">New transaction</span>
           </Button>
         </NavbarContent>
       </Navbar>
@@ -109,27 +103,26 @@ export default function LandingLayout({
       <section className="flex">
         <aside
           className={clsx(
-            "custom-scrollbar h-[calc(100vh-4.25rem)] min-w-[95.5vw] overflow-auto border-r-1 border-emerald-200 shadow-md shadow-emerald-100 md:min-w-64 dark:border-default dark:shadow-default",
+            "custom-scrollbar h-[calc(100vh-4.25rem)] min-w-[100vw] overflow-auto border-r-1 border-emerald-200 shadow-md shadow-emerald-100 md:min-w-52 lg:min-w-64 dark:border-default dark:shadow-default",
             { ["hidden"]: !isMenuOpen && width && width < 768 },
           )}
         >
-          <div className="flex h-full flex-col justify-between px-3 pb-2 pt-6">
+          <div className="flex h-full flex-col justify-between px-3 pb-4 pt-6">
             <ul className="flex flex-col gap-3">
               {siteConfig.navItems.map((item) => (
-                <li
-                  key={item.href}
-                  className={clsx(
-                    "w-full rounded px-3 py-2 font-medium shadow-sm hover:shadow-emerald-400 dark:hover:shadow-slate-500",
-                    {
-                      ["shadow-emerald-400 dark:shadow-slate-500"]:
-                        item.href === pathname,
-                    },
-                  )}
-                >
-                  <NextLink color="foreground" href={item.href}>
+                <NextLink key={item.href} color="foreground" href={item.href}>
+                  <li
+                    className={clsx(
+                      "w-full rounded px-3 py-2 font-medium shadow-sm hover:shadow-emerald-400 dark:hover:shadow-slate-500",
+                      {
+                        ["shadow-emerald-400 dark:shadow-slate-500"]:
+                          item.href === pathname,
+                      },
+                    )}
+                  >
                     {item.label}
-                  </NextLink>
-                </li>
+                  </li>
+                </NextLink>
               ))}
             </ul>
 
@@ -147,8 +140,9 @@ export default function LandingLayout({
             </Button>
           </div>
         </aside>
-        <main className="custom-scrollbar h-[calc(100vh-4.25rem)] w-full overflow-auto">
+        <main className="custom-scrollbar flex max-h-[calc(100vh-4.25rem)] min-h-[calc(100vh-4.25rem)] w-full flex-col justify-between overflow-y-auto overflow-x-hidden px-3 lg:px-6">
           {children}
+          <Footer />
         </main>
       </section>
     </>

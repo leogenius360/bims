@@ -7,8 +7,20 @@ import {
   DropdownTrigger,
   User,
 } from "@nextui-org/react";
+import { internalUrls } from "@/config/site-config";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/auth/provider";
 
 export const UserProfile = () => {
+  const router = useRouter();
+
+  const { user, logOut } = useAuth();
+
+  const handleLogOut = async () => {
+    await logOut();
+    router.push(internalUrls.home);
+  };
+
   return (
     <Dropdown
       placement="bottom-end"
@@ -19,15 +31,19 @@ export const UserProfile = () => {
     >
       <DropdownTrigger>
         <button
-          className="flex gap-4 items-center mx-2"
+          className="mx-2 flex items-center gap-4"
           type="button"
           aria-label="Profile"
         >
           <Avatar
             isBordered
             showFallback
-            className="bg-transparent w-6 h-6 text-tiny"
-            src="images/avatar-placeholder.jpg"
+            className="h-6 w-6 bg-transparent text-tiny"
+            src={
+              user && user.photoURL
+                ? user.photoURL
+                : "images/avatar-placeholder.jpg"
+            }
           />
         </button>
       </DropdownTrigger>
@@ -36,12 +52,16 @@ export const UserProfile = () => {
         <DropdownItem
           key="profile"
           showDivider
-          className="border-default cursor-default data-[hover=true]:bg-transparent data-[selectable=true]:focus:bg-transparent"
+          className="cursor-default border-default data-[hover=true]:bg-transparent data-[selectable=true]:focus:bg-transparent"
           classNames={{ base: "bg-emerald" }}
         >
           <User
-            name="Junior Leo"
-            description="jnrleo@geniustechspace.com"
+            name={user && user.displayName ? user.displayName : "Anonymous"}
+            description={
+              user && user.email
+                ? user.email
+                : `${user?.displayName}@serenity-bot.com`
+            }
             classNames={{
               // base: "bg-danger p-4",
               name: "font-semibold",
@@ -49,7 +69,10 @@ export const UserProfile = () => {
             }}
             avatarProps={{
               size: "sm",
-              src: "images/avatar-placeholder.jpg",
+              src:
+                user && user.photoURL
+                  ? user.photoURL
+                  : "images/avatar-placeholder.jpg",
             }}
           />
         </DropdownItem>
@@ -89,6 +112,7 @@ export const UserProfile = () => {
             color="danger"
             variant="solid"
             key="logout"
+            onClick={handleLogOut}
             classNames={{
               base: "bg-danger text-white",
               title: "text-center font-semibold",

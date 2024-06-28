@@ -1,6 +1,6 @@
 'use client' 
  
-import { internalUrls } from '@/config/site'
+import { internalUrls } from '@/config/site-config'
 import { Button } from '@nextui-org/react'
 import Link from 'next/link'
 import { useEffect } from 'react'
