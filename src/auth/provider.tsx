@@ -1,3 +1,4 @@
+"use client"
 import {
   createContext,
   useContext,
@@ -14,7 +15,7 @@ import {
   initializeApp,
 } from "firebase/app";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { internalUrls } from "@/config/site-config";
+import { internalUrls, requireAuth } from "@/config/site-config";
 import {
   getFirebaseAuth,
   logOut,
@@ -117,30 +118,38 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-export const useLoginRequired = async () => {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const currentRoute = usePathname();
 
-  if (loading && !user && !currentRoute.startsWith(internalUrls.auth)) {
-    return (
-      <Modal
-        backdrop="opaque"
-        isDismissable={false}
-        placement="center"
-        defaultOpen={true}
-        hideCloseButton={true}
-      >
-        <ModalContent className="flex max-w-[12em] justify-center p-5 align-middle">
-          <Spinner classNames={{ wrapper: "pt-2" }} />
-          <h3 className="mt-3 text-center font-semibold">Loading ...</h3>
-        </ModalContent>
-      </Modal>
-    );
-  }
+export const withLoginRequired = (Component: React.ComponentType) => {
+  const AuthenticatedComponent = (props: any) => {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
 
-  if (!loading && !user && !currentRoute.startsWith(internalUrls.auth)) {
-    router.replace(`${internalUrls.login}?redirect=${currentRoute}`); // Redirect to login page if not authenticated
-    // redirect(internalUrls.login)
-  }
+    useEffect(() => {
+      if (!loading && !user && requireAuth.includes(pathname)) {
+        router.push(`${internalUrls.login}?redirect=${pathname}`);
+      }
+    }, [user, loading, pathname, router]);
+
+    if (loading || (!user && requireAuth.includes(pathname))) {
+      return (
+        <Modal
+          backdrop="opaque"
+          isDismissable={false}
+          placement="center"
+          defaultOpen={true}
+          hideCloseButton={true}
+        >
+          <ModalContent className="flex max-w-[12em] justify-center p-5 align-middle">
+            <Spinner classNames={{ wrapper: "pt-2" }} />
+            <h3 className="mt-3 text-center font-semibold">Loading ...</h3>
+          </ModalContent>
+        </Modal>
+      );;
+    }
+
+    return <Component {...props} />;
+  };
+
+  return AuthenticatedComponent;
 };

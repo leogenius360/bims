@@ -1,10 +1,13 @@
+"use client"
+
 import { Image } from "@nextui-org/react";
 import { DashboardStats, StockOverview } from "@/components/showcase";
 import { Logo } from "@/components/icons";
 import { siteConfig } from "@/config/site-config";
 import { InStock } from "@/components/tables";
+import { withLoginRequired } from "@/auth/provider";
 
-export default function Dashboard() {
+const Dashboard = () => {
   return (
     <section className="">
       <DashboardStats />
@@ -69,4 +72,6 @@ export default function Dashboard() {
       </div>
     </section>
   );
-}
+};
+
+export default withLoginRequired(Dashboard);

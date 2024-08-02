@@ -3,7 +3,7 @@ export type SiteConfig = typeof siteConfig;
 export const internalUrls = {
 	// Base URL
 	home: '/',
-
+ 
     // Auth URLs
     auth: "/accounts",
     login: "/accounts/login",
@@ -12,11 +12,14 @@ export const internalUrls = {
 
 	// Navigation URLs
 	dashboard: '/dashboard',
-	history: '/dashboard/history',
-	reports: '/dashboard/reports',
+	transactions: '/transactions',
+	history: '/history',
+	reports: '/reports',
 	docs: '/docs',
 	support: '/support',
 }
+
+export const requireAuth = [internalUrls.dashboard, internalUrls.transactions, internalUrls.reports, internalUrls.history]
 
 export const siteConfig = {
 	name: "Blochain Inventory Management System",
@@ -25,17 +28,25 @@ export const siteConfig = {
 	description: "A developer space to accelerate software developement.",
 	navItems: [
 		{
+			label: "Home",
+			href: internalUrls.home,
+		},
+		{
 			label: "Dashboard",
 			href: internalUrls.dashboard,
 		},
 		{
-			label: "History",
-			href: internalUrls.history,
+			label: "Transactions",
+			href: internalUrls.transactions,
 		},
-		{
-			label: "Reports",
-			href: internalUrls.reports,
-		},
+		// {
+		// 	label: "History",
+		// 	href: internalUrls.history,
+		// },
+		// {
+		// 	label: "Reports",
+		// 	href: internalUrls.reports,
+		// },
 		{
 			label: "Docs",
 			href: internalUrls.docs,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import NextLink from "next/link";
 import { Button } from "@nextui-org/react";
 import { FcGoogle } from "react-icons/fc";
@@ -14,8 +14,11 @@ import { handleAuthErrors } from "@/auth/firebase";
 export default function LoginPage() {
   const router = useRouter();
   const { user, loginWithEmail } = useAuth();
+  const searchParams = useSearchParams()
 
-  if (user) router.back();
+  const redirectUrl = searchParams.get("redirect");
+
+  if (user) redirectUrl? router.push(redirectUrl) : router.back();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -25,7 +28,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const user = await loginWithEmail({ email, password });
-      router.back();
+      if (user) redirectUrl? router.push(redirectUrl) : router.back();
       return;
     } catch (error) {
       handleAuthErrors(error, setErrors);
@@ -102,7 +105,7 @@ export default function LoginPage() {
         <span className="block">
           Don&apos;s have an account?{" "}
           <NextLink
-            href={internalUrls.signUp}
+            href={redirectUrl?`${internalUrls.signUp}?redirect=${redirectUrl}` : internalUrls.signUp}
             className="text-blue-500 underline-offset-2 hover:underline"
           >
             sign up

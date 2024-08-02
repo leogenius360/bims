@@ -1,7 +1,5 @@
 import { Metadata } from "next";
 import { siteConfig } from "@/config/site-config";
-import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: {
@@ -24,9 +22,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col justify-between">
-      <Navbar />
       {children}
-      <Footer />
     </div>
   );
 }

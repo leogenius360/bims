@@ -5,7 +5,7 @@ import NextLink from "next/link";
 import { Button } from "@nextui-org/react";
 import { Divider } from "@/components";
 import { internalUrls } from "@/config/site-config";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/provider";
 import { GoogleLoginButton } from "@/components/buttons";
 import { handleAuthErrors } from "@/auth/firebase";
@@ -13,8 +13,11 @@ import { handleAuthErrors } from "@/auth/firebase";
 export default function SignUpPage() {
   const router = useRouter();
   const { user, signUpWithEmail } = useAuth();
+  const searchParams = useSearchParams()
 
-  if (user) router.back();
+  const redirectUrl = searchParams.get("redirect");
+
+  if (user) redirectUrl? router.push(redirectUrl) : router.back();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -29,7 +32,7 @@ export default function SignUpPage() {
     }
     try {
       const user = await signUpWithEmail({ email, password });
-      router.back();
+      if (user) redirectUrl? router.push(redirectUrl) : router.back();
     } catch (error) {
       handleAuthErrors(error, setErrors);
     }
