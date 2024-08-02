@@ -25,12 +25,7 @@ export const metadata: Metadata = {
 export default function DocsLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
 	return (
 		<main className="min-h-screen flex flex-col justify-between">
-		<Navbar />
-		<section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
 			{children}
-		</section>
-  
-		<Footer />
 	  </main>
 	);
 }
