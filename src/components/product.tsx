@@ -45,28 +45,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             />
           </div>
 
-          <div className="col-span-6 flex flex-col md:col-span-8 gap-1">
+          <div className="col-span-6 flex flex-col gap-1 md:col-span-8">
             <div className="flex items-start justify-between">
               <h3 className="font-semibold text-foreground/90">{name}</h3>
-              <h3 className=""><small className="text-xs text-emerald-500">GHC</small>{price}</h3>
+              <h3 className="">
+                <small className="text-xs text-emerald-500">GHC</small>
+                {price}
+              </h3>
             </div>
 
             <div className="">
               <small className="inline-flex w-full items-center justify-between font-semibold text-foreground/80">
                 Stock:
                 <span className="text-emerald-400">{quantity}</span>
-                <FiGitCommit size={18} className="px-0.5 -mb-0.5" />
+                <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
                 <span className="text-red-500">-{quantity} out</span>
-                <FiGitCommit size={18} className="px-0.5 -mb-0.5" />
+                <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
                 <span className="text-emerald-500">+{quantity} next</span>
               </small>
             </div>
 
             <p className="">{description}</p>
 
-            <div className="flex w-full items-center justify-between mt-2">
+            <div className="mt-2 flex w-full items-center justify-between">
               <Button
-                className=" font-bold"
+                className="font-bold"
                 size="sm"
                 color="primary"
                 radius="sm"
@@ -75,7 +78,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 Request stock
               </Button>
               <Button
-                className=" font-bold"
+                className="font-bold"
                 size="sm"
                 color="primary"
                 radius="sm"
@@ -91,40 +94,54 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   );
 };
 
-export const ProductHeadline = () => {
+interface ProductHeadlineProps {
+  category?: string | undefined;
+  tags?: string[] | undefined;
+}
+
+export const ProductHeadline = ({
+  category,
+  tags,
+}: ProductHeadlineProps) => {
   const { width } = useWindowSize();
   return (
     <section className="flex items-center justify-between gap-3 px-3 py-3 md:px-6 md:py-4">
-        <h3 className="font-bold">Products</h3>
+      <h3 className="font-bold capitalize">
+        {category ? category : "All Products"}
+      </h3>
 
-        <div className="flex items-center gap-3">
-          <Button
-            as={NextLink}
-            isIconOnly={width && width < 640 ? true : false}
-            size="sm"
-            href="/dashboard"
-            radius="sm"
-            color="primary"
-            variant="ghost"
-            startContent={<CiEdit />}
-            className="text-sm font-semibold ring-1 ring-emerald-600 ring-offset-1 dark:text-white dark:ring-offset-gray-800"
-          >
-            <span className="hidden sm:flex">Update product</span>
-          </Button>
-          <Button
-            as={NextLink}
-            isIconOnly={width && width < 640 ? true : false}
-            size="sm"
-            href="/dashboard"
-            radius="sm"
-            color="primary"
-            variant="ghost"
-            startContent={<FiPlus />}
-            className="text-sm font-semibold ring-1 ring-emerald-600 ring-offset-1 dark:text-white dark:ring-offset-gray-800"
-          >
-            <span className="hidden sm:flex">New product</span>
-          </Button>
-        </div>
-      </section>
-  )
-}
+      <div className="flex items-center gap-3">
+        <Button
+          as={NextLink}
+          isIconOnly={width && width < 640 ? true : false}
+          size="sm"
+          href="/dashboard"
+          radius="sm"
+          color="primary"
+          variant="ghost"
+          startContent={<CiEdit />}
+          className="text-sm font-semibold ring-1 ring-emerald-600 ring-offset-1 dark:text-white dark:ring-offset-gray-800"
+        >
+          <span className="hidden sm:flex">
+            {category ? `Update ${category.toLowerCase()}` : "Update product"}
+          </span>
+        </Button>
+        <Button
+          as={NextLink}
+          isIconOnly={width && width < 640 ? true : false}
+          size="sm"
+          href="/dashboard"
+          radius="sm"
+          color="primary"
+          variant="ghost"
+          startContent={<FiPlus />}
+          className="text-sm font-semibold ring-1 ring-emerald-600 ring-offset-1 dark:text-white dark:ring-offset-gray-800"
+        >
+          <span className="hidden sm:flex">
+            {category ? `New ${category.toLowerCase()}` : "New product"}
+          </span>
+        </Button>
+      </div>
+    </section>
+  );
+};

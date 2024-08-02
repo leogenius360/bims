@@ -10,6 +10,7 @@ import { useAuth } from "@/auth/provider";
 import { GoogleLoginButton } from "@/components/buttons";
 import { handleAuthErrors } from "@/auth/firebase";
 
+
 export default function SignUpPage() {
   const router = useRouter();
   const { user, signUpWithEmail } = useAuth();
