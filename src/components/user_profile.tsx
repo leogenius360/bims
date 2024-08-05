@@ -31,7 +31,7 @@ export const UserProfile = () => {
     >
       <DropdownTrigger>
         <button
-          className="mx-2 flex items-center gap-4"
+          className="mx-2 flex items-center gap-4 rounded-full"
           type="button"
           aria-label="Profile"
         >

@@ -7,6 +7,8 @@ import { fontSans } from "@/config/fonts";
 import { Providers } from "./providers";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
+import { NewProductForm } from "@/components/forms/products";
+import { UpdateCartForm } from "@/components/forms/cart";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,9 +40,12 @@ export default function RootLayout({
         )}
       >
         <Providers attribute="class" defaultTheme="system" enableSystem>
-          <main className="flex min-h-screen flex-col justify-between">
+          <main className="flex min-h-screen flex-col">
             <Navbar />
             {children}
+
+            <NewProductForm />
+            <UpdateCartForm />
 
             <Footer />
           </main>

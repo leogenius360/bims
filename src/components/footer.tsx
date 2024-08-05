@@ -1,9 +1,9 @@
-import { siteFooter } from "@/config/site-config";
 import Link from "next/link";
+import { siteFooter } from "@/config/site-config";
 
 export const Footer = () => {
   return (
-    <footer className="card border-0 border-t-1 border-emerald-200 px-4 py-3 shadow-inner shadow-emerald-50 dark:border-default dark:shadow-default">
+    <footer className="card mt-auto border-0 border-t-1 border-emerald-200 px-4 py-3 shadow-inner shadow-emerald-50 dark:border-default dark:shadow-default">
       <div className="mx-auto flex max-w-screen-2xl flex-wrap justify-center gap-x-6 gap-y-2 text-sm md:justify-between">
         <div className="inline-flex flex-nowrap gap-x-6">
           {siteFooter.termsAndConditions.map((item) => (

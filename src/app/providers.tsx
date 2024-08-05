@@ -10,6 +10,7 @@ import { NextUIProvider } from "@nextui-org/system";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/auth/provider";
 import { firebaseConfig } from "@/config/firebase-config";
+import { CartProvider } from "@/cart/provider";
 
 export function Providers({ children, ...themeProps }: ThemeProviderProps) {
   const router = useRouter();
@@ -25,7 +26,7 @@ export function Providers({ children, ...themeProps }: ThemeProviderProps) {
           authProvider="firebase"
           firebase={{ config: firebaseConfig }}
         >
-          {children}
+          <CartProvider>{children}</CartProvider>
         </AuthProvider>
       </NextThemesProvider>
     </NextUIProvider>

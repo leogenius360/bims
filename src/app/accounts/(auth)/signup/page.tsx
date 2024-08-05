@@ -5,20 +5,25 @@ import NextLink from "next/link";
 import { Button } from "@nextui-org/react";
 import { Divider } from "@/components";
 import { internalUrls } from "@/config/site-config";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/provider";
 import { GoogleLoginButton } from "@/components/buttons";
 import { handleAuthErrors } from "@/auth/firebase";
 
-
 export default function SignUpPage() {
   const router = useRouter();
   const { user, signUpWithEmail } = useAuth();
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const redirectUrl = searchParams.get("redirect");
 
-  if (user) redirectUrl? router.push(redirectUrl) : router.back();
+  if (user)
+    redirectUrl
+      ? router.push(redirectUrl)
+      : pathname.includes(internalUrls.auth)
+        ? router.push(internalUrls.home)
+        : router.back();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -33,7 +38,12 @@ export default function SignUpPage() {
     }
     try {
       const user = await signUpWithEmail({ email, password });
-      if (user) redirectUrl? router.push(redirectUrl) : router.back();
+      if (user)
+        redirectUrl
+          ? router.push(redirectUrl)
+          : pathname.includes(internalUrls.auth)
+            ? router.push(internalUrls.home)
+            : router.back();
     } catch (error) {
       handleAuthErrors(error, setErrors);
     }

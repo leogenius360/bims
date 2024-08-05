@@ -4,27 +4,17 @@ import { useRef, useState } from "react";
 import NextLink from "next/link";
 import {
   Button,
-  Input,
   Navbar as NextUINavbar,
   NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
   NavbarBrand,
   NavbarItem,
-  NavbarMenuItem,
-  useDisclosure,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownSection,
   DropdownItem,
+  Badge,
   Avatar,
-  User,
 } from "@nextui-org/react";
 
 import { internalUrls, siteConfig } from "@/config/site-config";
@@ -32,11 +22,13 @@ import clsx from "clsx";
 
 import { Logo } from "@/components/icons";
 import { FiMenu, FiPhone, FiX } from "react-icons/fi";
+import { FaCartFlatbed } from "react-icons/fa6";
 import { UserProfile } from "@/components/user_profile";
 import { usePathname } from "next/navigation";
 import { SingleThemeSwitch, ThemeSwitch } from "./theme-switch";
 import { SupportButton } from "./buttons";
 import { useAuth } from "@/auth/provider";
+import { useCart } from "@/cart/provider";
 
 export interface NavbarProps {
   isLoggedIn?: boolean | undefined;
@@ -46,12 +38,13 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();
+  const { cart, getProducts } = useCart();
 
   return (
     <NextUINavbar
       isBordered
       maxWidth="2xl"
-      className="border-b-1 border-emerald-100 dark:border-default shadow-md shadow-emerald-100 dark:shadow-none"
+      className="border-b-1 border-emerald-100 shadow-md shadow-emerald-100 dark:border-default dark:shadow-none"
       classNames={{ wrapper: "px-2 lg:px-6" }}
     >
       <NavbarContent className="gap-1">
@@ -67,8 +60,8 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
           classNames={{ trigger: "md:hidden" }}
         >
           <DropdownTrigger>
-            <Button isIconOnly size="sm" variant="light" aria-label="Menu">
-              {isMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+            <Button isIconOnly size="sm" variant="ghost" aria-label="Menu">
+              {isMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
             </Button>
           </DropdownTrigger>
 
@@ -92,9 +85,9 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
           </DropdownMenu>
         </Dropdown>
 
-        <NavbarBrand className="font-bold text-sm lg:text-base">
+        <NavbarBrand className="text-sm font-bold lg:text-base">
           <NextLink
-            className="flex justify-start items-center gap-0 md:gap-1"
+            className="flex items-center justify-start gap-0 md:gap-1"
             href="/"
           >
             <Logo />
@@ -106,12 +99,12 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
       </NavbarContent>
 
       {/* navItems */}
-      <NavbarContent className="hidden md:flex gap-3 lg:ms-5">
+      <NavbarContent className="hidden gap-3 md:flex lg:ms-5">
         {siteConfig.navItems.map((item) => (
           <NavbarItem key={item.href}>
             <NextLink
               className={clsx(
-                "text-sm hover:shadow-emerald-400 dark:hover:shadow-slate-500 rounded px-2 py-1 shadow-sm",
+                "rounded px-2 py-1 text-sm shadow-sm hover:shadow-emerald-400 dark:hover:shadow-slate-500",
                 {
                   ["shadow-emerald-400 dark:shadow-slate-500"]:
                     item.href === pathname,
@@ -127,10 +120,20 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
       </NavbarContent>
 
       {/* End/Left side navItems */}
-      <NavbarContent className="gap-5 md:gap-5" justify="end">
-        <button type="button" aria-label="theme" className="w-4 h-7">
-          <SingleThemeSwitch />
-        </button>
+      <NavbarContent className="gap-3 lg:gap-5" justify="end">
+        <SingleThemeSwitch />
+        <Badge content={getProducts().length} color="primary">
+          <Button
+            isIconOnly
+            variant="ghost"
+            size="sm"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#updateCartForm"
+            aria-controls="updateCartForm"
+          >
+            <FaCartFlatbed size={18} />
+          </Button>
+        </Badge>
 
         {user ? (
           <UserProfile />
@@ -143,7 +146,7 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
             variant="light"
             size="sm"
             // endContent={<FiChevronsRight />}
-            className="font-semibold text-sm text-primary"
+            className="text-sm font-semibold text-primary"
           >
             Login
           </Button>

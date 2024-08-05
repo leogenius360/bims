@@ -10,47 +10,50 @@ export enum TransactionVerificationPermission {
 
 // PRODUCT TABLE
 
-export class ProductSchema {
+export class Product {
     id: string;
     name: string;
-    description: string;
     price: number;
     quantity: number;
+    imageUrl: string;
+    description: string;
     latestUpdateBy: string;
-    latestUpdateDate: Date;
+    latestUpdateDate?: Date;
 
-    constructor(id: string, name: string, description: string, price: number, quantity: number, latestUpdateBy: string, latestUpdateDate: Date) {
+    constructor(id: string, name: string, price: number, quantity: number, imageUrl:string, description: string, latestUpdateBy: string, latestUpdateDate?: Date) {
         this.id = id;
         this.name = name;
-        this.description = description;
         this.price = price;
         this.quantity = quantity;
+        this.imageUrl = imageUrl;
+        this.description = description;
         this.latestUpdateBy = latestUpdateBy;
         this.latestUpdateDate = latestUpdateDate;
     }
 
-    static async get(id: string): Promise<ProductSchema | null> {
+    static async get(id: string): Promise<Product | null> {
         const docRef = doc(db, 'Products', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
-            return new ProductSchema(data.id, data.name, data.description, data.price, data.quantity, data.latestUpdateBy, data.latestUpdateDate.toDate());
+            return new Product(data.id, data.name, data.price, data.quantity, data.imageUrl, data.description, data.latestUpdateBy, data.latestUpdateDate.toDate());
         } else {
             return null;
         }
     }
 
-    static async getAll(): Promise<ProductSchema[]> {
-        const products: ProductSchema[] = [];
+    static async getAll(): Promise<Product[]> {
+        const products: Product[] = [];
         const querySnapshot = await getDocs(collection(db, 'Products'));
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            products.push(new ProductSchema(
+            products.push(new Product(
                 data.id,
                 data.name,
-                data.description,
                 data.price,
                 data.quantity,
+                data.imageUrl,
+                data.description,
                 data.latestUpdateBy,
                 data.latestUpdateDate.toDate()
             ));
@@ -63,21 +66,23 @@ export class ProductSchema {
         await setDoc(docRef, {
             id: this.id,
             name: this.name,
-            description: this.description,
             price: this.price,
             quantity: this.quantity,
+            imageUrl: this.imageUrl,
+            description: this.description,
             latestUpdateBy: this.latestUpdateBy,
             latestUpdateDate: this.latestUpdateDate
         });
     }
 
-    async update(updatedBy: string, name?: string, description?: string, price?: number, quantity?: number): Promise<void> {
+    async update(updatedBy: string, name?: string, price?: number, quantity?: number, imageUrl?: string, description?: string): Promise<void> {
         const docRef = doc(db, 'Products', this.id);
         await updateDoc(docRef, {
             name: name ? name : this.name,
-            description: description ? description : this.description,
             price: price ? price : this.price,
             quantity: quantity ? quantity : this.quantity,
+            imageUrl: imageUrl ? imageUrl : this.imageUrl,
+            description: description ? description : this.description,
             latestUpdateBy: updatedBy,
             latestUpdateDate: new Date()
         });
@@ -235,7 +240,7 @@ interface SalesProductProps {
     productQuantity: number;
 }
 
-export enum PaymentStatus{
+export enum PaymentStatus {
     FullPayment = "part payment",
     PartPayment = "full payment"
 }
