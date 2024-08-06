@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   createContext,
   useContext,
@@ -15,7 +15,7 @@ import {
   initializeApp,
 } from "firebase/app";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { internalUrls, requireAuth } from "@/config/site-config";
+import { allowedUsers, internalUrls, requireAuth } from "@/config/site-config";
 import {
   getFirebaseAuth,
   logOut,
@@ -118,7 +118,6 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-
 export const withLoginRequired = (Component: React.ComponentType) => {
   const AuthenticatedComponent = (props: any) => {
     const { user, loading } = useAuth();
@@ -145,7 +144,14 @@ export const withLoginRequired = (Component: React.ComponentType) => {
             <h3 className="mt-3 text-center font-semibold">Loading ...</h3>
           </ModalContent>
         </Modal>
-      );;
+      );
+    }
+
+    if (
+      !pathname.includes(internalUrls.auth) &&
+      !allowedUsers.delivery.includes(user?.email!)
+    ) {
+      return router.push(internalUrls.accessDenied);
     }
 
     return <Component {...props} />;

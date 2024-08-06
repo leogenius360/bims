@@ -7,8 +7,13 @@
     "compat-api/css": [
       "default",
       {
-        "ignore": [
-        ]
+        "ignore": []
+      }
+    ],
+    "axe/forms": [
+      "default",
+      {
+        "label": "off"
       }
     ]
   }

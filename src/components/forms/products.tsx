@@ -5,8 +5,15 @@ import NextLink from "next/link";
 import { Button } from "@nextui-org/react";
 import { internalUrls } from "@/config/site-config";
 import { Divider } from "..";
+import { Product } from "@/db/schemas";
+import { useAuth } from "@/auth/provider";
+import { FirebaseError } from "firebase/app";
+import { storage } from "@/config/firebase-config";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export const NewProductForm = () => {
+  const { user } = useAuth();
+
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<number>();
   const [quantity, setQuantity] = useState<number>();
@@ -14,9 +21,67 @@ export const NewProductForm = () => {
   const [description, setDescription] = useState<string>("");
   const [errors, setErrors] = useState<string>("");
 
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setFile(event.target.files[0]);
+      setImgUrl(event.target.value)
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const storageRef = ref(storage, `product images/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // Progress monitoring (optional)
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+        },
+        (error) => {
+          // Handle unsuccessful uploads
+          reject(error);
+        },
+        () => {
+          // Handle successful uploads
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        },
+      );
+    });
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log({ name, price, quantity, imgUrl, description });
+    setErrors("");
+    const product = new Product(
+      name.split(" ").join("").toLowerCase(),
+      name,
+      price ? price : 0,
+      quantity ? quantity : 0,
+      imgUrl,
+      description,
+      user?.displayName ? user.displayName : user?.email!,
+      new Date(),
+    );
+    if (file) {
+      try {
+        const url = await uploadImage(file);
+        product.imageUrl = url;
+        await product.save();
+        console.log(product);
+      } catch (e) {
+        const error = e as FirebaseError;
+        console.log(error, e);
+        setErrors(error.message);
+      }
+    }
   };
   return (
     <div
@@ -97,7 +162,7 @@ export const NewProductForm = () => {
             <input
               type="file"
               value={imgUrl}
-              onChange={(e) => setImgUrl(e.target.value)}
+              onChange={handleFileChange}
               required
               placeholder="Enter product name"
               className="mb-3 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"

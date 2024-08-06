@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Image,
+  Input,
 } from "@nextui-org/react";
 import { FiGitCommit, FiMinus, FiPlus } from "react-icons/fi";
 import { TiFilter } from "react-icons/ti";
@@ -20,54 +21,36 @@ import { useCart } from "@/cart/provider";
 import { Product } from "@/db/schemas";
 import { useAuth } from "@/auth/provider";
 import useWindowSize from "@/lib/window_size";
+import { allowedUsers } from "@/config/site-config";
+import { ChangeEvent, FocusEvent, useState } from "react";
+import { CartButton } from "./buttons";
 
 interface ProductCardProps {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
+  product: Product;
   filter?: string;
   className?: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
-  id,
-  name,
-  description,
-  price,
-  quantity,
-  imageUrl,
+  product,
   filter,
   className,
 }) => {
   const { user } = useAuth();
   const { cart, addToCart, removeFromCart } = useCart();
 
-  const product = new Product(
-    id,
-    name,
-    price,
-    quantity,
-    imageUrl,
-    description,
-    user?.displayName ? user.displayName : "",
-    new Date(),
-  );
-
   return (
     <Card
       isBlurred
       className={twMerge(
-        "border-1 border-emerald-500 bg-background/60 dark:bg-default-100/50",
+        "h-full w-full border-1 border-emerald-500 bg-background/60 dark:bg-default-100/50",
         className,
       )}
       shadow="sm"
       radius="sm"
     >
       <CardBody>
-        <div className="grid grid-cols-6 items-center justify-center gap-6 md:grid-cols-12 md:gap-4">
+        <div className="grid h-full w-full grid-cols-6 items-center justify-center gap-6 md:grid-cols-12 md:gap-4">
           <div className="relative col-span-6 md:col-span-4">
             <Image
               alt="Product image"
@@ -76,80 +59,65 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               width="100%"
               radius="sm"
               shadow="md"
-              src={imageUrl}
+              src={product.imageUrl}
             />
           </div>
 
-          <div className="col-span-6 flex flex-col gap-1 md:col-span-8">
+          <div className="col-span-6 flex h-full w-full flex-col gap-1 md:col-span-8">
             <div className="flex items-start justify-between">
-              <h3 className="font-semibold text-foreground/90">{name}</h3>
+              <h3 className="font-semibold text-foreground/90">
+                {product.name}
+              </h3>
               <h3>
                 <small className="text-xs text-emerald-500">GHC</small>
-                {price}
+                {product.price}
               </h3>
             </div>
 
             <div>
               <small className="inline-flex w-full items-center justify-between font-semibold text-foreground/80">
                 Stock:
-                <span className="text-emerald-400">{quantity}</span>
+                <span className="text-emerald-400">{product.quantity}</span>
                 <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
-                <span className="text-red-500">-{quantity} out</span>
+                <span className="text-red-500">-{product.quantity} out</span>
                 <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
-                <span className="text-emerald-500">+{quantity} next</span>
+                <span className="text-emerald-500">
+                  +{product.quantity} next
+                </span>
               </small>
             </div>
 
-            <p>{description}</p>
+            <p>{product.description}</p>
 
-            <div className="mt-2 flex w-full items-center justify-between gap-2">
-              <Button
-                className="font-bold"
-                size="sm"
-                color="primary"
-                radius="sm"
-                variant="ghost"
-              >
-                Request stock
-              </Button>
+            {user && allowedUsers.sales.includes(user.email!) ? (
+              <div className="mt-auto flex w-full items-center justify-between gap-2">
+                <Button
+                  className="font-bold"
+                  size="sm"
+                  color="primary"
+                  radius="sm"
+                  variant="ghost"
+                >
+                  Request stock
+                </Button>
 
-              {cart &&
-                (cart.some((cartProduct) => cartProduct.id === product.id) ? (
-                  <ButtonGroup size="sm" variant="ghost" color="primary">
+                {cart &&
+                  (cart.some((cartProduct) => cartProduct.id === product.id) ? (
+                    <CartButton product={product} />
+                  ) : (
                     <Button
-                      isIconOnly
-                      onClick={() => removeFromCart(product.id)}
+                      className="font-bold"
+                      size="sm"
+                      color="primary"
+                      radius="sm"
+                      variant="ghost"
+                      onClick={() => addToCart(product)}
                     >
-                      <FiMinus size={18} />
+                      Add to cart
                     </Button>
-                    <Button
-                      isIconOnly
-                      variant="bordered"
-                      className="cursor-text font-bold dark:text-white"
-                    >
-                      {
-                        cart.filter(
-                          (cartProduct) => cartProduct.id === product.id,
-                        ).length
-                      }
-                    </Button>
-                    <Button isIconOnly onClick={() => addToCart(product)}>
-                      <FiPlus size={18} />
-                    </Button>
-                  </ButtonGroup>
-                ) : (
-                  <Button
-                    className="font-bold"
-                    size="sm"
-                    color="primary"
-                    radius="sm"
-                    variant="ghost"
-                    onClick={() => addToCart(product)}
-                  >
-                    Add to cart
-                  </Button>
-                ))}
-            </div>
+                  ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </CardBody>
@@ -172,6 +140,7 @@ export const ProductHeadline = ({
   setSelectedKeys,
   selectedValue,
 }: ProductHeadlineProps) => {
+  const { user } = useAuth();
   const { width } = useWindowSize();
   const keys = categories.concat(...tags);
 
@@ -207,27 +176,36 @@ export const ProductHeadline = ({
         </DropdownMenu>
       </Dropdown>
 
-      <Button
-        data-bs-toggle="offcanvas"
-        data-bs-target="#newProductForm"
-        aria-controls="newProductForm"
-        isIconOnly={width && width < 640 ? true : false}
-        size="sm"
-        radius="sm"
-        color="primary"
-        variant="ghost"
-        startContent={<FiPlus />}
-        className="text-sm font-semibold dark:text-white"
-      >
-        <span className="hidden sm:flex">New product</span>
-      </Button>
+      {user && allowedUsers.admins.includes(user.email!) ? (
+        <Button
+          data-bs-toggle="offcanvas"
+          data-bs-target="#newProductForm"
+          aria-controls="newProductForm"
+          isIconOnly={width && width < 640 ? true : false}
+          size="sm"
+          radius="sm"
+          color="primary"
+          variant="ghost"
+          startContent={<FiPlus />}
+          className="text-sm font-semibold dark:text-white"
+        >
+          <span className="hidden sm:flex">New product</span>
+        </Button>
+      ) : null}
     </section>
   );
 };
 
 export const CartProductCard = ({ product }: { product: Product }) => {
   const { user } = useAuth();
-  const { cart, addToCart, removeFromCart, getTotalPricePerProduct, getCartTotalPrice } = useCart();
+  const {
+    cart,
+    addToCart,
+    removeFromCart,
+    getTotalPricePerProduct,
+    getCartTotalPrice,
+  } = useCart();
+
   const totalPricePerProduct = getTotalPricePerProduct();
 
   return (
@@ -257,14 +235,14 @@ export const CartProductCard = ({ product }: { product: Product }) => {
                 {product.name}
                 <span className="text-sm text-foreground/60">
                   <small className="text-xs">GHC</small>
-                  {product.price}
+                  {product.price.toFixed(2)}
                 </span>
               </h3>
               <h6 className="flex flex-col font-semibold">
                 <span>
                   Total (<small className="text-xs">GHC</small>)
                 </span>
-                <span>{totalPricePerProduct[product.id]}</span>
+                <span>{totalPricePerProduct[product.id].toFixed(2)}</span>
               </h6>
             </div>
 
@@ -280,42 +258,7 @@ export const CartProductCard = ({ product }: { product: Product }) => {
                 Remove
               </Button>
 
-              {cart &&
-                (cart.some((cartProduct) => cartProduct.id === product.id) ? (
-                  <ButtonGroup size="sm" variant="ghost" color="primary">
-                    <Button
-                      isIconOnly
-                      onClick={() => removeFromCart(product.id)}
-                    >
-                      <FiMinus size={18} />
-                    </Button>
-                    <Button
-                      isIconOnly
-                      variant="bordered"
-                      className="cursor-text font-bold dark:text-white"
-                    >
-                      {
-                        cart.filter(
-                          (cartProduct) => cartProduct.id === product.id,
-                        ).length
-                      }
-                    </Button>
-                    <Button isIconOnly onClick={() => addToCart(product)}>
-                      <FiPlus size={18} />
-                    </Button>
-                  </ButtonGroup>
-                ) : (
-                  <Button
-                    className="font-bold"
-                    size="sm"
-                    color="primary"
-                    radius="sm"
-                    variant="ghost"
-                    onClick={() => addToCart(product)}
-                  >
-                    Add to cart
-                  </Button>
-                ))}
+              <CartButton product={product} />
             </div>
           </div>
         </div>

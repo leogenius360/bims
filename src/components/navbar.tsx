@@ -17,7 +17,7 @@ import {
   Avatar,
 } from "@nextui-org/react";
 
-import { internalUrls, siteConfig } from "@/config/site-config";
+import { allowedUsers, internalUrls, siteConfig } from "@/config/site-config";
 import clsx from "clsx";
 
 import { Logo } from "@/components/icons";
@@ -39,6 +39,8 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
   const pathname = usePathname();
   const { user } = useAuth();
   const { cart, getProducts } = useCart();
+
+  if (pathname === internalUrls.accessDenied) return;
 
   return (
     <NextUINavbar
@@ -122,18 +124,21 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
       {/* End/Left side navItems */}
       <NavbarContent className="gap-3 lg:gap-5" justify="end">
         <SingleThemeSwitch />
-        <Badge content={getProducts().length} color="primary">
-          <Button
-            isIconOnly
-            variant="ghost"
-            size="sm"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#updateCartForm"
-            aria-controls="updateCartForm"
-          >
-            <FaCartFlatbed size={18} />
-          </Button>
-        </Badge>
+
+        {user && allowedUsers.sales.includes(user.email!) ? (
+          <Badge content={getProducts().length} color="primary">
+            <Button
+              isIconOnly
+              variant="ghost"
+              size="sm"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#updateCartForm"
+              aria-controls="updateCartForm"
+            >
+              <FaCartFlatbed size={18} />
+            </Button>
+          </Badge>
+        ) : null}
 
         {user ? (
           <UserProfile />

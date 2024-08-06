@@ -3,12 +3,12 @@ export type SiteConfig = typeof siteConfig;
 export const internalUrls = {
 	// Base URL
 	home: '/',
- 
-    // Auth URLs
-    auth: "/accounts",
-    login: "/accounts/login",
-    signUp: "/accounts/signup",
-    forgotPassword: "/accounts/forgot-password",
+
+	// Auth URLs
+	auth: "/accounts",
+	login: "/accounts/login",
+	signUp: "/accounts/signup",
+	forgotPassword: "/accounts/forgot-password",
 
 	// Navigation URLs
 	dashboard: '/dashboard',
@@ -17,9 +17,17 @@ export const internalUrls = {
 	reports: '/reports',
 	docs: '/docs',
 	support: '/support',
+
+	// Access Control
+	accessDenied: '/access-denied',
 }
 
-export const requireAuth = [internalUrls.dashboard, internalUrls.transactions, internalUrls.reports, internalUrls.history]
+export const requireAuth = [
+	internalUrls.dashboard,
+	internalUrls.transactions,
+	internalUrls.reports,
+	internalUrls.history
+]
 
 export const siteConfig = {
 	name: "Blochain Inventory Management System",
@@ -87,5 +95,30 @@ export const siteFooter = {
 export const colors = {
 	primary: "#f97316",
 	primary500: "#f59e0b",
+}
+
+export const admins = [
+	"admin36@bims.com"
+]
+
+export const sales = [
+	"sales123@bims.com"
+]
+
+export const delivery = [
+	"delivery45@bims.com"
+]
+
+export const allowedUsers = {
+	admins: admins,
+	sales: [...admins, ...sales],
+	delivery: [...admins, ...sales, ...delivery]
+}
+
+
+export const support = {
+	phone: "tel:+233241301463",
+	whatsapp: "https://wa.me/233241301463",
+	mail: "support24@bims.com"
 }
 

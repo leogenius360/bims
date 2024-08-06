@@ -19,13 +19,6 @@ export default function LoginPage() {
 
   const redirectUrl = searchParams.get("redirect");
 
-  if (user)
-    redirectUrl
-      ? router.push(redirectUrl)
-      : pathname.includes(internalUrls.auth)
-        ? router.push(internalUrls.home)
-        : router.back();
-
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errors, setErrors] = useState<string>("");

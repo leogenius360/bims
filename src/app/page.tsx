@@ -3,9 +3,13 @@
 import { useState, useMemo } from "react";
 import NextLink from "next/link";
 import { ProductCard, ProductHeadline } from "@/components/product";
+import { useAuth, withLoginRequired } from "@/auth/provider";
+import { allowedUsers } from "@/config/site-config";
+import { Product } from "@/db/schemas";
 
+const LandingPage = () => {
+  const { user } = useAuth();
 
-export default function LandingPage() {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set([]));
   const categories = ["Massonary", "Roofing", "Carpentery"];
   const products = [
@@ -16,7 +20,8 @@ export default function LandingPage() {
       description: "A tool for driving screws",
       price: 15.99,
       quantity: 30,
-      imageUrl: "https://thumbs.dreamstime.com/b/power-tools-isolated-white-background-28864575.jpg",
+      imageUrl:
+        "https://thumbs.dreamstime.com/b/power-tools-isolated-white-background-28864575.jpg",
     },
     {
       id: "1",
@@ -25,7 +30,8 @@ export default function LandingPage() {
       description: "A useful tool for construction",
       price: 25.99,
       quantity: 50,
-      imageUrl: "https://img.houseui.com/media/blog-thumbnail/Different_Types_Of_Roofing_Materials.jpg/",
+      imageUrl:
+        "https://img.houseui.com/media/blog-thumbnail/Different_Types_Of_Roofing_Materials.jpg/",
     },
     {
       id: "2",
@@ -34,7 +40,8 @@ export default function LandingPage() {
       description: "A tool for driving screws",
       price: 15.99,
       quantity: 30,
-      imageUrl: "https://cdn.classfmonline.com/cfoZ41e/imagelib/thumbs/88710853.jpg",
+      imageUrl:
+        "https://cdn.classfmonline.com/cfoZ41e/imagelib/thumbs/88710853.jpg",
     },
     {
       id: "3",
@@ -43,7 +50,8 @@ export default function LandingPage() {
       description: "A tool for driving screws",
       price: 15.99,
       quantity: 30,
-      imageUrl: "https://img.houseui.com/media/blog-thumbnail/Different_Types_Of_Roofing_Materials.jpg/",
+      imageUrl:
+        "https://img.houseui.com/media/blog-thumbnail/Different_Types_Of_Roofing_Materials.jpg/",
     },
     {
       id: "4",
@@ -52,7 +60,8 @@ export default function LandingPage() {
       description: "A tool for driving screws",
       price: 15.99,
       quantity: 30,
-      imageUrl: "https://thumbs.dreamstime.com/b/power-tools-isolated-white-background-28864575.jpg",
+      imageUrl:
+        "https://thumbs.dreamstime.com/b/power-tools-isolated-white-background-28864575.jpg",
     },
     {
       id: "5",
@@ -61,7 +70,8 @@ export default function LandingPage() {
       description: "A tool for driving screws",
       price: 15.99,
       quantity: 30,
-      imageUrl: "https://img.houseui.com/media/blog-thumbnail/Different_Types_Of_Roofing_Materials.jpg/",
+      imageUrl:
+        "https://img.houseui.com/media/blog-thumbnail/Different_Types_Of_Roofing_Materials.jpg/",
     },
     {
       id: "6",
@@ -70,7 +80,8 @@ export default function LandingPage() {
       description: "A tool for driving screws",
       price: 15.99,
       quantity: 30,
-      imageUrl: "https://cdn.classfmonline.com/cfoZ41e/imagelib/thumbs/88710853.jpg",
+      imageUrl:
+        "https://cdn.classfmonline.com/cfoZ41e/imagelib/thumbs/88710853.jpg",
     },
     {
       id: "7",
@@ -79,7 +90,8 @@ export default function LandingPage() {
       description: "A tool for driving screws",
       price: 15.99,
       quantity: 30,
-      imageUrl: "https://thumbs.dreamstime.com/b/power-tools-isolated-white-background-28864575.jpg",
+      imageUrl:
+        "https://thumbs.dreamstime.com/b/power-tools-isolated-white-background-28864575.jpg",
     },
   ];
 
@@ -99,7 +111,7 @@ export default function LandingPage() {
           selectedValue={selectedValue}
         />
 
-        <section className="grid items-center gap-4 px-3 pb-4 xs:grid-cols-2 sm:justify-between md:px-6 md:pb-8 lg:grid-cols-3">
+        <section className="grid items-center gap-4 px-3 pb-4 xs:grid-cols-2 sm:justify-between md:px-6 md:pb-8 xl:grid-cols-3 2xl:grid-cols-4">
           {products
             .filter((product) =>
               selectedValue
@@ -114,18 +126,24 @@ export default function LandingPage() {
             .map((product) => (
               <ProductCard
                 key={product.id}
-                id={product.id}
-                name={product.name}
-                description={product.description}
-                price={product.price}
-                quantity={product.quantity}
-                imageUrl={product.imageUrl}
+                product={new Product(
+                  product.id,
+                  product.name,
+                  product.price,
+                  product.quantity,
+                  product.imageUrl,
+                  product.description,
+                  user?.displayName ? user.displayName : "",
+                  new Date(),
+                )}
                 filter={selectedValue}
-                // className={`group-data-[filtered=${product.category.toLowerCase()}]:inline-block ${product.category.toLowerCase()}`}
+                className="h-full w-full"
               />
             ))}
         </section>
       </div>
     </>
   );
-}
+};
+
+export default withLoginRequired(LandingPage);
