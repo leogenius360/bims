@@ -148,8 +148,9 @@ export const withLoginRequired = (Component: React.ComponentType) => {
     }
 
     if (
-      !pathname.includes(internalUrls.auth) &&
-      !allowedUsers.delivery.includes(user?.email!)
+      user &&
+      !allowedUsers.includes(user?.email!) &&
+      !pathname.includes(internalUrls.auth)
     ) {
       return router.push(internalUrls.accessDenied);
     }

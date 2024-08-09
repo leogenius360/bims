@@ -109,11 +109,7 @@ export const delivery = [
 	"delivery45@bims.com"
 ]
 
-export const allowedUsers = {
-	admins: admins,
-	sales: [...admins, ...sales],
-	delivery: [...admins, ...sales, ...delivery]
-}
+export const allowedUsers = [...admins, ...sales, ...delivery]
 
 
 export const support = {

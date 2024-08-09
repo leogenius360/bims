@@ -1,10 +1,14 @@
 import { User } from "firebase/auth";
-import { allowedUsers } from "@/config/site-config";
+import { admins, delivery, sales } from "@/config/site-config";
+
+export const isDeliveryUser = (user?: User) => {
+  return user && delivery.includes(user.email!);
+};
 
 export const isSalesUser = (user?: User) => {
-  return user && allowedUsers.sales.includes(user.email!);
+  return user && sales.includes(user.email!);
 };
 
 export const isAdminUser = (user?: User) => {
-  return user && allowedUsers.admins.includes(user.email!);
+  return user && admins.includes(user.email!);
 };

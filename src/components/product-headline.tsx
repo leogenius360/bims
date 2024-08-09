@@ -66,21 +66,17 @@ export const ProductHeadline = ({
           ))}
         </DropdownMenu>
       </Dropdown>
-      <form action="" method="get" onSubmit={onSearchEnter}>
-        <div className="flex h-8 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 py-1 hover:border-emerald-500">
-          <input
-            type="text"
-            value={searchValue}
-            onChange={onSearchEnter}
-            placeholder="Search products..."
-            className="h-full w-full border-none bg-transparent outline-none"
-          />
-          <button type="submit" title="Send" className="px-2 py-3">
-            <TbFilterSearch size={22} className="text-emerald-500" />
-          </button>
-        </div>
-      </form>
 
+      <div className="flex h-7 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 py-1 hover:border-emerald-500">
+        <input
+          type="text"
+          value={searchValue}
+          onChange={onSearchEnter}
+          placeholder="Search products..."
+          className="h-full w-full border-none bg-transparent outline-none"
+        />
+        <TbFilterSearch size={20} className=" text-emerald-500" />
+      </div>
       {isAdminUser(user) ? (
         <Button
           data-bs-toggle="offcanvas"

@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { ProductCard } from "@/components/product-card";
 import { useAuth, withLoginRequired } from "@/auth/provider";
-import { allowedUsers } from "@/config/site-config";
 import { InventoryMethod, Product } from "@/db/product";
 import { Button, Spinner } from "@nextui-org/react";
 import { ProductHeadline } from "@/components/product-headline";

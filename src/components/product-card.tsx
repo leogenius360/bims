@@ -6,7 +6,7 @@ import { CartButton } from "./buttons";
 import { Product } from "@/db/product";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
-import { isSalesUser } from "@/auth/utils";
+import { isAdminUser, isSalesUser } from "@/auth/utils";
 
 interface ProductCardProps {
   user?: User;
@@ -108,7 +108,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
             <p>{product.description}</p>
 
-            {isSalesUser(user) ? (
+            {(isAdminUser(user) || isSalesUser(user)) && (
               <div className="mt-auto flex w-full items-center justify-between gap-2">
                 <Button
                   className="font-bold"
@@ -119,33 +119,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 >
                   Request stock
                 </Button>
-
-                {cart &&
-                cart.some(
-                  (cartProduct) => cartProduct.productId === product.id,
-                ) ? (
-                  <CartButton productId={product.id} />
-                ) : (
-                  <Button
-                    className="font-bold"
-                    size="sm"
-                    color="primary"
-                    radius="sm"
-                    variant="ghost"
-                    onClick={async () =>
-                      addProduct({
-                        productId: product.id,
-                        productName: product.name,
-                        productPrice: price!,
-                        productQuantity: 1,
-                      })
-                    }
-                  >
-                    Add to cart
-                  </Button>
-                )}
+                {isSalesUser(user) &&
+                  (cart.some(
+                    (cartProduct) => cartProduct.productId === product.id,
+                  ) ? (
+                    <CartButton productId={product.id} />
+                  ) : (
+                    <Button
+                      className="font-bold"
+                      size="sm"
+                      color="primary"
+                      radius="sm"
+                      variant="ghost"
+                      onClick={async () =>
+                        addProduct({
+                          productId: product.id,
+                          productName: product.name,
+                          productPrice: price!,
+                          productQuantity: 1,
+                        })
+                      }
+                    >
+                      Add to cart
+                    </Button>
+                  ))}
               </div>
-            ) : null}
+            )}
           </div>
         </div>
       </CardBody>

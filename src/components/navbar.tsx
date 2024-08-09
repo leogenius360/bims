@@ -17,7 +17,7 @@ import {
   Avatar,
 } from "@nextui-org/react";
 
-import { allowedUsers, internalUrls, siteConfig } from "@/config/site-config";
+import { internalUrls, siteConfig } from "@/config/site-config";
 import clsx from "clsx";
 
 import { Logo } from "@/components/icons";
@@ -29,6 +29,7 @@ import { SingleThemeSwitch, ThemeSwitch } from "./theme-switch";
 import { SupportButton } from "./buttons";
 import { useAuth } from "@/auth/provider";
 import { useCart } from "@/cart/provider";
+import { isSalesUser } from "@/auth/utils";
 
 export interface NavbarProps {
   isLoggedIn?: boolean | undefined;
@@ -125,7 +126,7 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
       <NavbarContent className="gap-3 lg:gap-5" justify="end">
         <SingleThemeSwitch />
 
-        {user && allowedUsers.sales.includes(user.email!) ? (
+        {isSalesUser(user?user:undefined) ? (
           cart.length > 0 ? (
             <Badge content={cart.length} color="primary">
               <Button
