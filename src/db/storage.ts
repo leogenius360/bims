@@ -1,4 +1,4 @@
-// utils/uploadImage.ts
+
 import { storage } from "@/config/firebase-config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 

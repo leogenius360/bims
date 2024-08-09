@@ -38,7 +38,7 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();
-  const { cart, getProducts } = useCart();
+  const { cart } = useCart();
 
   if (pathname === internalUrls.accessDenied) return;
 
@@ -126,7 +126,20 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
         <SingleThemeSwitch />
 
         {user && allowedUsers.sales.includes(user.email!) ? (
-          <Badge content={getProducts().length} color="primary">
+          cart.length > 0 ? (
+            <Badge content={cart.length} color="primary">
+              <Button
+                isIconOnly
+                variant="ghost"
+                size="sm"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#updateCartForm"
+                aria-controls="updateCartForm"
+              >
+                <FaCartFlatbed size={18} />
+              </Button>
+            </Badge>
+          ) : (
             <Button
               isIconOnly
               variant="ghost"
@@ -137,7 +150,7 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
             >
               <FaCartFlatbed size={18} />
             </Button>
-          </Badge>
+          )
         ) : null}
 
         {user ? (

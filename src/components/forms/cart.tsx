@@ -1,18 +1,13 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import NextLink from "next/link";
 import { Button } from "@nextui-org/react";
-import { internalUrls } from "@/config/site-config";
 import { Divider } from "..";
 import { useCart } from "@/cart/provider";
-import { CartProductCard, ProductCard } from "../product";
+import { CartProductCard } from "../cart-product-card";
 
 export const UpdateCartForm = () => {
-  const { getProducts, getCartTotalPrice } = useCart();
+  const { cart, getTotalCost } = useCart();
 
-  const products = getProducts();
-  const cartTotalPrice = getCartTotalPrice();
   return (
     <div
       className="offcanvas offcanvas-end w-screen border-primary md:max-w-96"
@@ -33,16 +28,22 @@ export const UpdateCartForm = () => {
         <hr />
       </div>
       <div className="offcanvas-body">
-        <Divider textContent={`Total value: ${cartTotalPrice.toFixed(2)}`} />
+        <Divider textContent={`Total value: ${getTotalCost().toFixed(2)}`} />
 
         <section className="flex flex-wrap gap-3">
-          {products.map((product) => (
-            <CartProductCard key={product.id} product={product} />
+          {cart.map((product) => (
+            <CartProductCard
+              key={product.productId}
+              productId={product.productId}
+              productName={product.productName}
+              productPrice={product.productPrice}
+              productQuantity={product.productQuantity}
+            />
           ))}
         </section>
       </div>
       <div className="offcanvas-footer bg-default-50 py-1 shadow-inner drop-shadow-md">
-        {products.length < 0 ? (
+        {cart.length < 0 ? (
           <Button
             variant="ghost"
             color="primary"

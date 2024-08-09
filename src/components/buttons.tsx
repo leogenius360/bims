@@ -8,7 +8,6 @@ import { ChangeEvent, useState } from "react";
 import { handleAuthErrors } from "@/auth/firebase";
 import { support } from "@/config/site-config";
 import { useCart } from "@/cart/provider";
-import { Product } from "@/db/schemas";
 
 export const SupportButton = () => {
   return (
@@ -58,41 +57,39 @@ export const GoogleLoginButton = () => {
   );
 };
 
-export const CartButton = ({ product }: { product: Product }) => {
-  const { cart, addToCart, removeFromCart } = useCart();
-
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    product: Product,
-  ) => {
-    const newQuantity = parseInt(e.target.value, 10);
-
-    removeFromCart(product.id, true);
-    if (isNaN(newQuantity) || newQuantity <= 0) {
-      addToCart(product);
-    } else {
-      // removeFromCart(product.id, true);
-      for (let i = 0; i < newQuantity; i++) {
-        addToCart(product);
-      }
-    }
-  };
+export const CartButton = ({ productId }: { productId: string }) => {
+  const { cart, updateProductQuantity } = useCart();
+  const cartProduct = cart.find((product) => product.productId === productId);
 
   return (
     <ButtonGroup size="sm" variant="ghost" color="primary">
-      <Button isIconOnly onClick={() => removeFromCart(product.id)}>
+      <Button
+        isIconOnly
+        onClick={() =>
+          updateProductQuantity({ productId: productId, minus: true })
+        }
+      >
         <FiMinus size={18} />
       </Button>
 
       <input
-        value={cart
-          .filter((cartProduct) => cartProduct.id === product.id)
-          .length.toString()}
-        onChange={(e) => handleInputChange(e, product)}
+        type="text"
+        value={cartProduct?.productQuantity.toString() || "0"}
+        onChange={(e) =>
+          updateProductQuantity({
+            productId: productId,
+            quantity: Number(e.target.value),
+          })
+        }
         className="w-12 cursor-text border-0 border-y-2 border-primary py-1 text-center text-sm font-bold outline-none dark:text-white"
       />
 
-      <Button isIconOnly onClick={() => addToCart(product)}>
+      <Button
+        isIconOnly
+        onClick={() =>
+          updateProductQuantity({ productId: productId, plus: true })
+        }
+      >
         <FiPlus size={18} />
       </Button>
     </ButtonGroup>
