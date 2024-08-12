@@ -12,8 +12,11 @@ export const internalUrls = {
 
 	// Navigation URLs
 	dashboard: '/dashboard',
-	transactions: '/transactions',
-	history: '/history',
+	stock: '/dashboard/stock',
+	sales: '/dashboard/sales',
+	products: '/dashboard/products',
+	transactions: "/dashboard/transactions",
+	approvals: '/dashboard/approvals',
 	reports: '/reports',
 	docs: '/docs',
 	support: '/support',
@@ -22,11 +25,38 @@ export const internalUrls = {
 	accessDenied: '/access-denied',
 }
 
+
+export const dashboardNavItems = [
+	{
+		label: "Overview",
+		href: internalUrls.dashboard,
+	},
+	{
+		label: "Sales",
+		href: internalUrls.sales,
+	},
+	{
+		label: "Stock",
+		href: internalUrls.stock,
+	},
+	{
+		label: "Products",
+		href: internalUrls.products,
+	},
+	{
+		label: "Transactions",
+		href: internalUrls.transactions,
+	},
+	{
+		label: "Approvals",
+		href: internalUrls.approvals,
+	},
+]
+
 export const requireAuth = [
 	internalUrls.dashboard,
 	internalUrls.transactions,
 	internalUrls.reports,
-	internalUrls.history
 ]
 
 export const siteConfig = {
@@ -43,10 +73,10 @@ export const siteConfig = {
 			label: "Dashboard",
 			href: internalUrls.dashboard,
 		},
-		{
-			label: "Transactions",
-			href: internalUrls.transactions,
-		},
+		// {
+		// 	label: "Transactions",
+		// 	href: internalUrls.transactions,
+		// },
 		// {
 		// 	label: "History",
 		// 	href: internalUrls.history,

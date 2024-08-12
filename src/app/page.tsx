@@ -70,8 +70,8 @@ const LandingPage = () => {
     <>
       <div className="">
         <ProductHeadline
+          aria-label="Filter"
           user={user!}
-          tags={["Screwdriver"]}
           categories={categories}
           selectedKeys={selectedKeys}
           setSelectedKeys={setSelectedKeys}

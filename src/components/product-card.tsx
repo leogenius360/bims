@@ -50,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   }, [product]);
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="text-center text-red-500">{error}</div>;
   }
 
   return (

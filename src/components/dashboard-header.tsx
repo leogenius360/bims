@@ -8,31 +8,55 @@ import {
 import { TiFilter } from "react-icons/ti";
 import { TbFilterSearch } from "react-icons/tb";
 import { ChangeEvent } from "react";
-import { FiPlus } from "react-icons/fi";
+import { FiMenu, FiPlus, FiX } from "react-icons/fi";
 import { User } from "firebase/auth";
 import { isAdminUser } from "@/auth/utils";
 
-interface ProductHeadlineProps {
+interface DashboardHeaderProps {
   user?: User;
-  categories: string[];
-  selectedKeys: Set<string>;
+  keys: string[];
   setSelectedKeys: (keys: Set<string>) => void;
+  selectedKeys: Set<string>;
   selectedValue: string;
+  valueToggler: (value: boolean) => void;
+  value?: boolean;
   onSearchEnter?: (e: ChangeEvent<HTMLInputElement>) => void;
   searchValue?: string;
 }
 
-export const ProductHeadline = ({
+const DashboardHeader = ({
   user,
-  categories,
-  selectedKeys,
+  keys,
   setSelectedKeys,
+  selectedKeys,
   selectedValue,
+  valueToggler,
+  value,
   onSearchEnter,
   searchValue,
-}: ProductHeadlineProps) => {
+}: DashboardHeaderProps) => {
   return (
     <section className="flex items-center justify-between gap-3 px-3 py-3 md:px-6 md:py-4">
+      <button
+        aria-label="Menu"
+        type="button"
+        onClick={() => valueToggler(!value)}
+      >
+        {/* {value ? <FiX size={22} /> : <FiMenu size={22} />} */}
+        {value ? null : <FiMenu size={22} />}
+      </button>
+
+      <div className="flex h-7 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 py-1 hover:border-emerald-500">
+        <input
+          type="text"
+          value={searchValue}
+          onChange={onSearchEnter}
+          placeholder="Search here..."
+          className="h-full w-full border-none bg-transparent outline-none"
+        />
+        <TbFilterSearch size={20} className="text-emerald-500" />
+      </div>
+
       <Dropdown>
         <DropdownTrigger>
           <Button
@@ -43,51 +67,28 @@ export const ProductHeadline = ({
             startContent={<TiFilter size={22} className="text-emerald-500" />}
             className="font-bold capitalize dark:text-white"
           >
-            {selectedValue ? selectedValue : "All products"}
+            {selectedValue ? selectedValue : keys[0]}
           </Button>
         </DropdownTrigger>
         <DropdownMenu
           aria-label="Filter"
           variant="flat"
-          closeOnSelect={false}
-          selectionMode="multiple"
+          disallowEmptySelection
           selectedKeys={selectedKeys}
+          selectionMode="single"
+          // closeOnSelect={false}
           onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
           className="w-full"
         >
-          {categories.map((key) => (
+          {keys.map((key) => (
             <DropdownItem key={key} className="capitalize">
               {key}
             </DropdownItem>
           ))}
         </DropdownMenu>
       </Dropdown>
-
-      <div className="flex h-7 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 py-1 hover:border-emerald-500">
-        <input
-          type="text"
-          value={searchValue}
-          onChange={onSearchEnter}
-          placeholder="Search products..."
-          className="h-full w-full border-none bg-transparent outline-none"
-        />
-        <TbFilterSearch size={20} className="text-emerald-500" />
-      </div>
-      {isAdminUser(user) ? (
-        <Button
-          data-bs-toggle="offcanvas"
-          data-bs-target="#newProductForm"
-          aria-controls="newProductForm"
-          size="sm"
-          radius="sm"
-          color="primary"
-          variant="ghost"
-          startContent={<FiPlus className="" />}
-          className="min-w-9 px-0 text-sm font-semibold sm:px-3 dark:text-white"
-        >
-          <span className="hidden sm:flex">New product</span>
-        </Button>
-      ) : null}
     </section>
   );
 };
+
+export default DashboardHeader;
