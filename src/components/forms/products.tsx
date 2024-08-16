@@ -1,7 +1,13 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { Button } from "@nextui-org/react";
+import { FormEvent, useEffect, useState } from "react";
+import {
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@nextui-org/react";
 import { Divider } from "..";
 import { useAuth } from "@/auth/provider";
 import { FirebaseError } from "firebase/app";
@@ -9,6 +15,8 @@ import { storage } from "@/config/firebase-config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { InventoryMethod, NewProductProps, Product } from "@/db/product";
 import { useRouter } from "next/navigation";
+import { ProductCategory } from "@/db/utils";
+import { FiPlus } from "react-icons/fi";
 
 export const NewProductForm = () => {
   const router = useRouter();
@@ -19,10 +27,24 @@ export const NewProductForm = () => {
     name: "",
     imageUrl: "",
     category: "",
-    inventoryMethod: InventoryMethod.FIFO,
+    inventoryMethod: "" as InventoryMethod,
     description: "",
   });
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await ProductCategory.getAll();
+        setCategories(categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -38,7 +60,6 @@ export const NewProductForm = () => {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          // Progress monitoring (optional)
           setProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         },
         (error) => {
@@ -46,7 +67,6 @@ export const NewProductForm = () => {
           reject(error);
         },
         () => {
-          // Handle successful uploads
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             resolve(downloadURL);
           });
@@ -58,6 +78,16 @@ export const NewProductForm = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrors("");
+
+    if (!productData.category) {
+      setErrors("Category is required.");
+      return;
+    }
+
+    if (!productData.inventoryMethod) {
+      setErrors("Inventory method is required.");
+      return;
+    }
 
     const product = new Product(productData, user!);
 
@@ -131,14 +161,27 @@ export const NewProductForm = () => {
               }
               required
               placeholder="Enter product name"
-              className="mb-3 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
+              className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
             />
           </div>
 
           <div className="drop-shadow">
-            <label className="mb-2 block text-xs font-bold">Category</label>
-            <input
-              type="text"
+            <div className="flex items-center justify-between">
+              <label className="my-2 block text-xs font-bold">Category</label>
+              <Button
+                data-bs-toggle="offcanvas"
+                data-bs-target="#newProductCategoryForm"
+                aria-controls="newProductCategoryForm"
+                isIconOnly
+                size="sm"
+                radius="sm"
+                color="primary"
+                variant="light"
+                startContent={<FiPlus size={18} className="dark:text-emerald-400" />}
+              ></Button>
+            </div>
+            <select
+              title="category"
               value={productData.category}
               onChange={(e) =>
                 setProductData((prev) => ({
@@ -147,30 +190,38 @@ export const NewProductForm = () => {
                 }))
               }
               required
-              placeholder="Enter product category"
-              className="mb-3 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
-            />
+              className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
+            >
+              <option value="" disabled>
+                Select Category
+              </option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.label}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="drop-shadow">
-            <label className="mb-2 block text-xs font-bold">
-              Inventory method
+            <label className="my-2 block text-xs font-bold">
+              Inventory Method
             </label>
             <select
-              className="mb-3 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
-              name="inventory-method"
-              id=""
+              title="inventory method"
               value={productData.inventoryMethod}
               onChange={(e) =>
                 setProductData((prev) => ({
                   ...prev,
-                  inventoryMethod:
-                    e.target.value === InventoryMethod.FIFO
-                      ? InventoryMethod.FIFO
-                      : InventoryMethod.LIFO,
+                  inventoryMethod: e.target.value as InventoryMethod,
                 }))
               }
+              required
+              className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
             >
+              <option value="" disabled>
+                Select Inventory Method
+              </option>
               <option value={InventoryMethod.FIFO}>
                 FIFO method of stock keeping
               </option>
@@ -181,15 +232,15 @@ export const NewProductForm = () => {
           </div>
 
           <div className="drop-shadow">
-            <label className="mb-2 block text-xs font-bold">
-              Image / image URL
+            <label className="my-2 block text-xs font-bold">
+              Image / Image URL
             </label>
             <input
               type="file"
               onChange={handleFileChange}
               required
               placeholder="Upload product image"
-              className="mb-3 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
+              className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
             />
           </div>
 
@@ -206,7 +257,7 @@ export const NewProductForm = () => {
               }
               placeholder="Enter product description here"
               required
-              className="mb-3 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
+              className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
             ></textarea>
           </div>
 
@@ -218,7 +269,7 @@ export const NewProductForm = () => {
             variant="solid"
             className="my-3 w-full"
           >
-            Submit
+            Save
           </Button>
         </form>
       </div>

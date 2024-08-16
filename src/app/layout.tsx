@@ -9,6 +9,8 @@ import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { NewProductForm } from "@/components/forms/products";
 import { UpdateCartForm } from "@/components/forms/cart";
+import { NewProductCategoryForm } from "@/components/forms/new-category-form";
+import { IntockForm, OutStockForm } from "@/components/forms/stock-form";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -46,6 +48,9 @@ export default function RootLayout({
 
             <NewProductForm />
             <UpdateCartForm />
+            <NewProductCategoryForm />
+            <IntockForm />
+            <OutStockForm />
 
             <Footer />
           </main>

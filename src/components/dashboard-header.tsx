@@ -42,11 +42,10 @@ const DashboardHeader = ({
         type="button"
         onClick={() => valueToggler(!value)}
       >
-        {/* {value ? <FiX size={22} /> : <FiMenu size={22} />} */}
         {value ? null : <FiMenu size={22} />}
       </button>
 
-      <div className="flex h-7 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 py-1 hover:border-emerald-500">
+      {/* <div className="flex h-7 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 py-1 hover:border-emerald-500">
         <input
           type="text"
           value={searchValue}
@@ -55,7 +54,7 @@ const DashboardHeader = ({
           className="h-full w-full border-none bg-transparent outline-none"
         />
         <TbFilterSearch size={20} className="text-emerald-500" />
-      </div>
+      </div> */}
 
       <Dropdown>
         <DropdownTrigger>

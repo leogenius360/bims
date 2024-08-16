@@ -18,7 +18,7 @@ export const UserProfile = () => {
 
   const handleLogOut = async () => {
     await logOut();
-    router.push(internalUrls.home);
+    router.push(internalUrls.login);
   };
 
   return (
@@ -75,16 +75,6 @@ export const UserProfile = () => {
                   : "images/avatar-placeholder.jpg",
             }}
           />
-        </DropdownItem>
-
-        <DropdownItem
-          key="settings"
-          shortcut="⌘S"
-          description="Update your account info"
-          //   startContent={}
-          classNames={{ title: "font-semibold" }}
-        >
-          Settings
         </DropdownItem>
 
         <DropdownItem

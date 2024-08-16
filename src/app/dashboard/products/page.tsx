@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth, withLoginRequired } from "@/auth/provider";
-import { isAdminUser } from "@/auth/utils";
+import { isAdminUser, isSalesUser } from "@/auth/utils";
 import { ProductsTable } from "@/components/tables";
 import { support, internalUrls } from "@/config/site-config";
 import { Button } from "@nextui-org/react";
@@ -10,7 +10,7 @@ import Link from "next/link";
 const ProductsPage = () => {
   const { user } = useAuth();
 
-  if (!user || !isAdminUser(user!)) {
+  if (!user || (!isAdminUser(user!) && !isSalesUser(user))) {
     return (
       <section className="flex h-[75vh] flex-col items-center justify-center gap-4 py-8 md:py-10">
         <h1 className="text-center font-bold">Access Denied!</h1>

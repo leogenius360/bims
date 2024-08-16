@@ -168,7 +168,7 @@ interface TransactionVerification {
     isVerified: boolean;
 }
 
-interface StocksProps {
+export interface StocksProps {
     id?: string;
     productId: string;
     description: string;
@@ -179,10 +179,13 @@ interface StocksProps {
     verifications: TransactionVerification[];
     createdBy?: User;
     createdDate?: Date | undefined;
+
+    from?: string;
+    to?: string;
 }
 
 abstract class BaseStock {
-    stockType!: string;
+    stockType!: StockType;
 
     id: string;
     productId: string;
@@ -194,8 +197,11 @@ abstract class BaseStock {
     verifications: TransactionVerification[];
     createdBy?: User;
     createdDate?: Date;
+    
+    from?: string;
+    to?: string;
 
-    constructor({ productId, description, price, quantity, expenses, verifications, pending = true }: StocksProps, authUser?: User) {
+    constructor({ productId, description, price, quantity, expenses, verifications, from, to, pending = true }: StocksProps, authUser?: User) {
         this.id = "";
         this.productId = productId;
         this.description = description;
@@ -206,13 +212,18 @@ abstract class BaseStock {
         this.verifications = verifications;
         this.createdBy = authUser;
         this.createdDate = new Date();
+        this.from = from
+        this.to = to
     }
 
     isVerified = () => {
         return this.verifications.every((verification) => verification.isVerified);
     };
 
-    protected abstract generateId(): string;
+    protected generateId(): string {
+        return `${this.productId}:${this.stockType}:${new Date().toISOString()}`;
+    }
+    
 
     static async get<T extends BaseStock>(this: new (props: StocksProps, authUser?: User) => T, id: string): Promise<T | null> {
         const instance = new this({} as StocksProps);
@@ -228,6 +239,8 @@ abstract class BaseStock {
                 expenses: data.expenses,
                 pending: data.pending,
                 verifications: data.verifications,
+                from: data.from,
+                to: data.to
             });
             stock.id = data.id;
             stock.createdBy = data.createdBy;
@@ -252,6 +265,8 @@ abstract class BaseStock {
                 expenses: data.expenses,
                 pending: data.pending,
                 verifications: data.verifications,
+                from: data.from,
+                to: data.to
             });
             stock.id = data.id;
             stock.createdBy = data.createdBy;
@@ -264,7 +279,7 @@ abstract class BaseStock {
     async save(): Promise<void> {
         this.id = this.generateId();
         const docRef = doc(db, `Products/${this.productId}/${this.stockType}`, this.id);
-        await setDoc(docRef, {
+        const data = {
             id: this.id,
             productId: this.productId,
             description: this.description,
@@ -275,23 +290,29 @@ abstract class BaseStock {
             verifications: this.verifications,
             createdBy: this.createdBy,
             createdDate: this.createdDate,
-        });
+            from: this.from,
+            to: this.to
+        }
+        await setDoc(docRef, data);
     }
 
     async verify(user: User): Promise<void> {
         const docRef = doc(db, `Products/${this.productId}/${this.stockType}`, this.id);
+        if (this.verifications.some((v) => v.user.email === user.email && v.isVerified)) {
+            console.warn("User has already verified this stock.");
+            return;
+        }
         this.verifications.push({ user: user, isVerified: true });
-        await updateDoc(docRef, {
-            verifications: this.verifications,
-        });
+        await updateDoc(docRef, { verifications: this.verifications });
     }
 
     async delete(): Promise<void> {
         const docRef = doc(db, `Products/${this.productId}/${this.stockType}`, this.id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-            const data = docSnap.data();
-            const canDelete = !data.verifications.some((verification: TransactionVerification) => verification.isVerified);
+            const stockData = docSnap.data();
+            const canDelete = !stockData.verifications.some((verification: TransactionVerification) => verification.isVerified);
+
             if (canDelete) {
                 await deleteDoc(docRef);
             }
@@ -300,24 +321,83 @@ abstract class BaseStock {
 }
 
 export class InStock extends BaseStock {
+    from: string
+
     constructor(props: StocksProps, authUser?: User) {
         super(props, authUser);
         this.stockType = StockType.InStock;
-    }
-
-    protected generateId(): string {
-        return `${this.productId}:${this.stockType}:${new Date().toISOString()}`;
+        this.from = props.from!;
     }
 }
 
 export class OutStock extends BaseStock {
+    to: string
+
     constructor(props: StocksProps, authUser?: User) {
         super(props, authUser);
         this.stockType = StockType.OutStock;
+        this.to = props.to!;
     }
 
-    protected generateId(): string {
-        return `${this.productId}:${this.stockType}:${new Date().toISOString()}`;
+}
+
+
+export enum StockTransactionType {
+    InStock = "In-stock",
+    OutStock = "Out-stock",
+    InStockRequest = "In-stock request",
+    OutStockRequest = "Out-stock request",
+}
+
+
+export interface StockProductProps {
+    productId: string;
+    productName: string;
+    productPrice: number;
+    productQuantity: number;
+}
+
+abstract class Stock{
+    id: string
+    products: StockProductProps[]
+    expenses: number
+    description: string
+
+    verifications: TransactionVerification[]
+    processedBy: string
+    date: Date
+
+    constructor(products: StockProductProps[], expenses: number, description: string, verifications: TransactionVerification[], processedBy: string) {
+        this.id = ""
+        this.products = products
+        this.expenses = expenses
+        this.description = description
+        this.verifications = verifications
+        this.processedBy = processedBy
+        this.date = new Date()
+    }
+    
+    isVerified = () => {
+        return this.verifications.every((verification) => verification.isVerified);
+    };
+
+}
+
+export class InStock2 extends Stock{
+    origin: string
+
+    constructor(products: StockProductProps[], origin:string, expenses: number, description: string, verifications:TransactionVerification[], processedBy: string) {
+        super(products, expenses, description, verifications, processedBy)
+        this.origin = origin
+    }
+}
+
+export class OutStock2 extends Stock{
+    destination: string
+
+    constructor(products: StockProductProps[], destination:string, expenses: number, description: string, verifications:TransactionVerification[], processedBy: string) {
+        super(products, expenses, description, verifications, processedBy)
+        this.destination = destination
     }
 }
 

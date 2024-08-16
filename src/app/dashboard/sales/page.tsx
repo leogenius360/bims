@@ -10,7 +10,7 @@ import Link from "next/link";
 const SalesPage = () => {
   const { user } = useAuth();
 
-  if (!user || !(isAdminUser(user!) || isSalesUser(user))) {
+  if (!user || (!isAdminUser(user!) && !isSalesUser(user))) {
     return (
       <section className="flex h-[75vh] flex-col items-center justify-center gap-4 py-8 md:py-10">
         <h1 className="text-center font-bold">Access Denied!</h1>

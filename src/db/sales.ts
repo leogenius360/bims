@@ -1,12 +1,18 @@
 import { db } from "@/config/firebase-config";
 import { doc, getDoc, getDocs, collection, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { Product } from "./product";
+import { User } from "firebase/auth";
 
-interface SalesProductProps {
-    productId: string;
-    productName: string;
-    productPrice: number;
-    productQuantity: number;
+
+export interface TransactionVerification {
+    user: User;
+    isVerified: boolean;
+}
+export interface SalesProductProps {
+    id: string;
+    name: string;
+    price: number;
+    qty: number;
 }
 
 export enum PaymentStatus {
@@ -14,10 +20,21 @@ export enum PaymentStatus {
     PartPayment = "part payment",
 }
 
-interface SalesPaymentProps {
+export interface SalesPaymentProps {
     amountPaid: number;
     balance: number;
     status: PaymentStatus;
+}
+
+export interface SalesProps {
+    description: string;
+    products: SalesProductProps[];
+    payment: SalesPaymentProps
+    expenses: number;
+
+    verifications: TransactionVerification[];
+    processedBy: string;
+    date: Date;
 }
 
 export class Sales {
@@ -25,16 +42,25 @@ export class Sales {
     products: SalesProductProps[];
     description: string;
     payment: SalesPaymentProps;
+    expenses: number
 
-    constructor({ description, products, payment }: { description: string, products: SalesProductProps[], payment: SalesPaymentProps }) {
+    verifications: TransactionVerification[]
+    processedBy: string
+    date: Date
+
+    constructor({ description, products, payment, expenses, verifications, processedBy }: SalesProps) {
         this.id = "";
         this.description = description;
         this.products = products;
         this.payment = payment;
+        this.expenses = expenses
+        this.verifications = verifications
+        this.processedBy = processedBy
+        this.date = new Date()
     }
 
     async getTotalPrice(): Promise<number> {
-        return this.products.reduce((total, product) => total + product.productPrice * product.productQuantity, 0);
+        return this.products.reduce((total, product) => total + product.price * product.qty, 0);
     }
 
     static async get(id: string): Promise<Sales | null> {
@@ -45,9 +71,13 @@ export class Sales {
             const sales = new Sales({
                 description: data.description,
                 products: data.products,
-                payment: data.payment
-            });
+                payment: data.payment,
+                expenses: data.expenses,
+                verifications: data.verifications,
+                processedBy: data.processedBy
+            } as SalesProps);
             sales.id = data.id;
+            sales.date = data.date;
             return sales;
         } else {
             return null;
@@ -62,20 +92,24 @@ export class Sales {
             const sales = new Sales({
                 description: data.description,
                 products: data.products,
-                payment: data.payment
-            });
+                payment: data.payment,
+                expenses: data.expenses,
+                verifications: data.verifications,
+                processedBy: data.processedBy
+            } as SalesProps);
             sales.id = data.id;
+            sales.date = data.date;
             allSales.push(sales);
         });
         return allSales;
     }
 
     async save(): Promise<void> {
-        this.id = `sales::${new Date().toISOString()}`;
+        this.id = `${this.processedBy}::${new Date().toISOString()}`;
         for (const product of this.products) {
-            const p = await Product.get(product.productId);
+            const p = await Product.get(product.id);
             if (p) {
-                await p.updateStock(product.productQuantity);
+                await p.updateStock(product.qty);
             }
         }
         const docRef = doc(db, 'Sales', this.id);
@@ -83,7 +117,11 @@ export class Sales {
             id: this.id,
             description: this.description,
             products: this.products,
-            payment: this.payment
+            payment: this.payment,
+            expenses: this.expenses,
+            verifications: this.verifications,
+            processedBy: this.processedBy,
+            date: new Date()
         });
     }
 

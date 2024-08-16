@@ -10,10 +10,10 @@ import { TbFilterSearch } from "react-icons/tb";
 import { ChangeEvent } from "react";
 import { FiPlus } from "react-icons/fi";
 import { User } from "firebase/auth";
-import { isAdminUser } from "@/auth/utils";
+import { isAdminUser, isDeliveryUser, isSalesUser } from "@/auth/utils";
 
 interface ProductHeadlineProps {
-  user?: User;
+  user: User | null;
   categories: string[];
   selectedKeys: Set<string>;
   setSelectedKeys: (keys: Set<string>) => void;
@@ -88,6 +88,38 @@ export const ProductHeadline = ({
           <span className="hidden sm:flex">New product</span>
         </Button>
       ) : null}
+      <div className=" flex gap-3 items-center">
+        {isSalesUser(user) || isDeliveryUser(user) ? (
+          <Button
+            data-bs-toggle="offcanvas"
+            data-bs-target="#outStockForm"
+            aria-controls="outStockForm"
+            size="sm"
+            radius="sm"
+            color="primary"
+            variant="ghost"
+            startContent={<FiPlus className="" />}
+            className="min-w-9 px-0 text-sm font-semibold sm:px-3 dark:text-white"
+          >
+            <span className="hidden sm:flex">Out stock</span>
+          </Button>
+        ) : null}
+        {isSalesUser(user) ? (
+          <Button
+            data-bs-toggle="offcanvas"
+            data-bs-target="#inStockForm"
+            aria-controls="inStockForm"
+            size="sm"
+            radius="sm"
+            color="primary"
+            variant="ghost"
+            startContent={<FiPlus className="" />}
+            className="min-w-9 px-0 text-sm font-semibold sm:px-3 dark:text-white"
+          >
+            <span className="hidden sm:flex">In stock</span>
+          </Button>
+        ) : null}
+      </div>
     </section>
   );
 };

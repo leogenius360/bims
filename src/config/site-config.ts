@@ -17,9 +17,11 @@ export const internalUrls = {
 	products: '/dashboard/products',
 	transactions: "/dashboard/transactions",
 	approvals: '/dashboard/approvals',
-	reports: '/reports',
+
+	
 	docs: '/docs',
-	support: '/support',
+	terms: '/terms-and-conditions',
+	privacy: '/privacy',
 
 	// Access Control
 	accessDenied: '/access-denied',
@@ -56,7 +58,6 @@ export const dashboardNavItems = [
 export const requireAuth = [
 	internalUrls.dashboard,
 	internalUrls.transactions,
-	internalUrls.reports,
 ]
 
 export const siteConfig = {
@@ -104,11 +105,11 @@ export const siteFooter = {
 	socialLinks: [
 		{
 			label: "Terms",
-			href: internalUrls.home,
+			href: internalUrls.terms,
 		},
 		{
 			label: "Privacy",
-			href: internalUrls.home,
+			href: internalUrls.privacy,
 		},
 		{
 			label: "Docs",
