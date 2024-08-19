@@ -4,13 +4,13 @@ export interface CartProduct {
   productId: string;
   productName: string;
   productPrice: number;
-  productQuantity: number;
+  productQty: number;
 }
 
 export interface CartContextType {
   cart: CartProduct[];
   addProduct: (product: CartProduct) => void;
-  updateProductQuantity: ({
+  updateProductQty: ({
     productId,
     quantity,
     plus,
@@ -53,7 +53,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
           p.productId === product.productId
             ? {
                 ...p,
-                productQuantity: p.productQuantity + product.productQuantity,
+                productQty: p.productQty + product.productQty,
               }
             : p,
         );
@@ -63,7 +63,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     });
   };
 
-  const updateProductQuantity = ({
+  const updateProductQty = ({
     productId,
     quantity,
     plus = false,
@@ -78,13 +78,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       prevCart.flatMap((p) => {
         if (p.productId === productId) {
           if (quantity !== undefined) {
-            p.productQuantity = quantity;
+            p.productQty = quantity;
           } else if (plus) {
-            p.productQuantity += 1;
+            p.productQty += 1;
           } else if (minus) {
-            p.productQuantity -= 1;
+            p.productQty -= 1;
           }
-          if (p.productQuantity < 1) {
+          if (p.productQty < 1) {
             return [];
           }
 
@@ -103,7 +103,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const getTotalCost = () => {
     return cart.reduce(
       (total, product) =>
-        total + product.productPrice * product.productQuantity,
+        total + product.productPrice * product.productQty,
       0,
     );
   };
@@ -117,7 +117,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       value={{
         cart,
         addProduct,
-        updateProductQuantity,
+        updateProductQty,
         removeProduct,
         getTotalCost,
         clearCart,

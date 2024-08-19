@@ -1,14 +1,11 @@
 "use client";
 
-import { Image } from "@nextui-org/react";
-import { DashboardStats, StockOverview } from "@/components/showcase";
-import { Logo } from "@/components/icons";
-import { allowedUsers, siteConfig } from "@/config/site-config";
+import { ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { Image } from "@nextui-org/react"
 import { CurrentStockTable, InStock } from "@/components/tables";
 import { useAuth, withLoginRequired } from "@/auth/provider";
-import { useRouter } from "next/navigation";
 import { isAdminUser, isDeliveryUser, isSalesUser } from "@/auth/utils";
-import { ReactNode } from "react";
 
 const AdminPageWraper = ({ children }: { children: ReactNode }) => {
   return <section className="inline-block w-full px-3">{children}</section>;
@@ -29,8 +26,6 @@ const Dashboard = () => {
 
         <InStock />
       </div>
-
-      <StockOverview />
 
       <div className="mt-5 grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2">
         <InStock />

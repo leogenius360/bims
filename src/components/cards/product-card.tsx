@@ -1,13 +1,11 @@
-import { Button, Card, CardBody, Image } from "@nextui-org/react";
+import { Card, CardBody, Image } from "@nextui-org/react";
 import { FiGitCommit } from "react-icons/fi";
 import { twMerge } from "tailwind-merge";
-import { useCart } from "@/cart/provider";
-import { CartButton, RequestStockButton, StockCartButton } from "./buttons";
+import { CartButton, RequestStockButton, StockCartButton } from "../buttons";
 import { Product } from "@/db/product";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { User } from "firebase/auth";
 import { isAdminUser, isSalesUser } from "@/auth/utils";
-import { useStockCart } from "@/stock/provider";
 
 interface ProductCardProps {
   user: User | null;
@@ -22,61 +20,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   filter,
   className,
 }) => {
-  const { cart, addProduct } = useCart();
-  const { stockCart, addStockProduct } = useStockCart();
   const [error, setError] = useState<string | null>(null);
 
   if (error) {
     return <div className="text-center text-red-500">{error}</div>;
   }
-
-  const newStockBtn = stockCart.some(
-    (stockProduct) => stockProduct.productId === product.id,
-  ) ? (
-    <StockCartButton productId={product.id} />
-  ) : (
-    <Button
-      className="font-bold"
-      size="sm"
-      color="primary"
-      radius="sm"
-      variant="ghost"
-      onClick={async () =>
-        addStockProduct({
-          productId: product.id,
-          productName: product.name,
-          productPrice: 0,
-          productQuantity: 1,
-        })
-      }
-    >
-      New stock
-    </Button>
-  );
-
-  const addToCartBtn = cart.some(
-    (cartProduct) => cartProduct.productId === product.id,
-  ) ? (
-    <CartButton productId={product.id} />
-  ) : (
-    <Button
-      className="font-bold"
-      size="sm"
-      color="primary"
-      radius="sm"
-      variant="ghost"
-      onClick={async () =>
-        addProduct({
-          productId: product.id,
-          productName: product.name,
-          productPrice: product.price!,
-          productQuantity: 1,
-        })
-      }
-    >
-      Add to cart
-    </Button>
-  );
 
   return (
     <Card
@@ -141,14 +89,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     }}
                   />
 
-                  {newStockBtn}
+                  <StockCartButton
+                    product={{
+                      productId: product.id,
+                      productName: product.name,
+                      productPrice: product.price,
+                      productQty: 1,
+                    }}
+                  />
                 </>
               )}
 
               {isSalesUser(user) && (
                 <>
-                  {newStockBtn}
-                  {addToCartBtn}
+                  <StockCartButton
+                    product={{
+                      productId: product.id,
+                      productName: product.name,
+                      productPrice: product.price,
+                      productQty: 1,
+                    }}
+                  />
+                  <CartButton
+                    product={{
+                      productId: product.id,
+                      productName: product.name,
+                      productPrice: product.price,
+                      productQty: 1,
+                    }}
+                  />
                 </>
               )}
             </div>

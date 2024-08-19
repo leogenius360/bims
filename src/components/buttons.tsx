@@ -1,14 +1,14 @@
 import NextLink from "next/link";
-import { Button, ButtonGroup, Input } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import { FiMinus, FiPhone, FiPlus } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/auth/provider";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { handleAuthErrors } from "@/auth/firebase";
 import { support } from "@/config/site-config";
-import { useCart } from "@/cart/provider";
-import { useStockCart } from "@/stock/provider";
+import { CartProduct, useCart } from "@/cart/provider";
+import { StockCartProduct, useStockCart } from "@/stock/provider";
 import {
   StockRequestProduct,
   useStockRequests,
@@ -62,58 +62,96 @@ export const GoogleLoginButton = () => {
   );
 };
 
-export const CartButton = ({ productId }: { productId: string }) => {
-  const { cart, updateProductQuantity } = useCart();
-  const cartProduct = cart.find((product) => product.productId === productId);
+export const CartButton = ({ product }: { product: CartProduct }) => {
+  const { cart, addProduct, updateProductQty } = useCart();
+  const cartProduct = cart.find((p) => p.productId === product.productId);
 
-  return (
-    <ButtonGroup size="sm" variant="ghost" color="primary">
-      <Button
-        isIconOnly
-        onClick={() =>
-          updateProductQuantity({ productId: productId, minus: true })
-        }
-      >
-        <FiMinus size={18} />
-      </Button>
-
-      <input
-        type="text"
-        value={cartProduct?.productQuantity.toString() || "0"}
-        onChange={(e) =>
-          updateProductQuantity({
-            productId: productId,
-            quantity: Number(e.target.value),
-          })
-        }
-        className="w-12 cursor-text border-0 border-y-2 border-primary py-1 text-center text-sm font-bold outline-none dark:text-white"
-      />
-
-      <Button
-        isIconOnly
-        onClick={() =>
-          updateProductQuantity({ productId: productId, plus: true })
-        }
-      >
-        <FiPlus size={18} />
-      </Button>
-    </ButtonGroup>
+  return cartProduct ? (
+    <Input
+      type="text"
+      placeholder="0"
+      value={cartProduct?.productQty.toString() || "0"}
+      size="sm"
+      radius="sm"
+      color="primary"
+      variant="bordered"
+      startContent={
+        <Button
+          isIconOnly
+          size="sm"
+          radius="none"
+          color="primary"
+          variant="solid"
+          onClick={() =>
+            updateProductQty({ productId: product.productId, minus: true })
+          }
+        >
+          <FiMinus size={18} />
+        </Button>
+      }
+      endContent={
+        <Button
+          isIconOnly
+          size="sm"
+          radius="none"
+          color="primary"
+          variant="solid"
+          onClick={() =>
+            updateProductQty({ productId: product.productId, plus: true })
+          }
+        >
+          <FiPlus size={18} />
+        </Button>
+      }
+      onChange={(e) =>
+        updateProductQty({
+          productId: product.productId,
+          quantity: Number(e.target.value),
+        })
+      }
+      className="max-w-28 items-center"
+      classNames={{
+        inputWrapper:
+          "border-emerald-700 data-[hover=true]:border-primary px-0 overflow-hidden font-bold",
+        input: "text-center font-semibold",
+      }}
+    />
+  ) : (
+    <Button
+      className="font-bold"
+      size="sm"
+      color="primary"
+      radius="sm"
+      variant="ghost"
+      onClick={async () =>
+        addProduct({
+          productId: product.productId,
+          productName: product.productName,
+          productPrice: product.productPrice,
+          productQty: 1,
+        })
+      }
+    >
+      Add to cart
+    </Button>
   );
 };
 
-export const StockCartButton = ({ productId }: { productId: string }) => {
-  const { stockCart, updateStockProductQty, updateStockProductPrice } =
-    useStockCart();
+export const StockCartButton = ({ product }: { product: StockCartProduct }) => {
+  const {
+    stockCart,
+    addStockProduct,
+    updateStockProductQty,
+    updateStockProductPrice,
+  } = useStockCart();
 
-  const cartProduct = stockCart.find(
-    (product) => product.productId === productId,
-  );
+  const cartProduct = stockCart.find((p) => p.productId === product.productId);
 
-  if (!cartProduct) {
-    return <span className="text-xs text-red-600">Unknown Error ...</span>;
-  }
+  // if (!cartProduct) {
+  //   return <span className="text-xs text-red-600">Unknown Error ...</span>;
+  // }
 
-  return (
+  return cartProduct ? (
     <div className="flex items-center justify-between gap-3">
       <Input
         type="text"
@@ -131,10 +169,11 @@ export const StockCartButton = ({ productId }: { productId: string }) => {
         }
         className="max-w-28 items-center"
         classNames={{
-          inputWrapper: "border-emerald-800 data-[hover=true]:border-primary",
+          inputWrapper: "border-primary data-[hover=true]:border-primary",
+          input: "font-semibold",
         }}
         onChange={(e) =>
-          updateStockProductPrice(productId, Number(e.target.value))
+          updateStockProductPrice(product.productId, Number(e.target.value))
         }
       />
 
@@ -142,7 +181,7 @@ export const StockCartButton = ({ productId }: { productId: string }) => {
         type="text"
         placeholder="0"
         defaultValue="0"
-        value={cartProduct.productQuantity.toString()}
+        value={cartProduct.productQty.toString()}
         size="sm"
         radius="sm"
         color="primary"
@@ -154,16 +193,35 @@ export const StockCartButton = ({ productId }: { productId: string }) => {
         }
         className="max-w-28 items-center"
         classNames={{
-          inputWrapper: "border-emerald-800 data-[hover=true]:border-primary",
+          inputWrapper: "border-primary data-[hover=true]:border-primary",
+          input: "font-semibold",
         }}
         onChange={(e) =>
           updateStockProductQty({
-            productId: productId,
+            productId: product.productId,
             quantity: Number(e.target.value),
           })
         }
       />
     </div>
+  ) : (
+    <Button
+      className="font-bold"
+      size="sm"
+      color="primary"
+      radius="sm"
+      variant="ghost"
+      onClick={async () =>
+        addStockProduct({
+          productId: product.productId,
+          productName: product.productName,
+          productPrice: 0,
+          productQty: 1,
+        })
+      }
+    >
+      New stock
+    </Button>
   );
 };
 
@@ -231,7 +289,7 @@ export const RequestStockButton = ({
       classNames={{
         inputWrapper:
           "border-emerald-700 data-[hover=true]:border-primary px-0 overflow-hidden font-bold",
-        input: "text-center",
+        input: "text-center font-semibold",
       }}
     />
   ) : (

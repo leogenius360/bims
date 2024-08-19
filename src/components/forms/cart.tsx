@@ -3,8 +3,10 @@
 import { Button } from "@nextui-org/react";
 import { Divider } from "..";
 import { useCart } from "@/cart/provider";
-import { CartProductCard, StockCartProductCard } from "../cart-product-card";
+import { CartProductCard, StockCartProductCard } from "../cards/cart-product-card";
 import { useStockCart } from "@/stock/provider";
+import Link from "next/link";
+import { internalUrls } from "@/config/site-config";
 
 export const UpdateCartForm = () => {
   const { cart, getTotalCost, removeProduct } = useCart();
@@ -38,32 +40,47 @@ export const UpdateCartForm = () => {
               productId={product.productId}
               productName={product.productName}
               productPrice={product.productPrice}
-              productQuantity={product.productQuantity}
+              productQty={product.productQty}
               removeProduct={removeProduct}
             />
           ))}
         </section>
       </div>
-      <div className="offcanvas-footer bg-default-50 py-1 shadow-inner drop-shadow-md">
+      <div className="offcanvas-footer bg-default-50 px-2 py-1 shadow-inner drop-shadow-md">
         {cart.length > 0 ? (
-          <Button
-            variant="ghost"
-            color="primary"
-            className="w-full font-bold"
-            radius="none"
-          >
-            Proceed to buy
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              aria-label="Close"
+              data-bs-dismiss="offcanvas"
+              variant="ghost"
+              color="primary"
+              radius="none"
+              className="w-full rounded font-bold"
+            >
+              Add more products
+            </Button>
+            <Button
+              as={Link}
+              href={internalUrls.checkout}
+              data-bs-dismiss="offcanvas"
+              variant="ghost"
+              color="primary"
+              radius="none"
+              className="w-full rounded font-bold"
+            >
+              Proceed to checkout
+            </Button>
+          </div>
         ) : (
           <Button
+            aria-label="Close"
+            data-bs-dismiss="offcanvas"
             variant="ghost"
             color="primary"
-            className="w-full font-bold"
             radius="none"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
+            className="w-full rounded font-bold"
           >
-            Continue to sell
+            Add more products
           </Button>
         )}
       </div>
@@ -105,19 +122,19 @@ export const UpdateStockCartForm = () => {
               productId={product.productId}
               productName={product.productName}
               productPrice={product.productPrice}
-              productQuantity={product.productQuantity}
+              productQty={product.productQty}
               removeProduct={removeStockProduct}
             />
           ))}
         </section>
       </div>
-      <div className="offcanvas-footer bg-default-50 py-1 shadow-inner drop-shadow-md">
+      <div className="offcanvas-footer bg-default-50 px-2 py-1 shadow-inner drop-shadow-md">
         {stockCart.length > 0 ? (
-          <div className="flex items-center gap-3 px-2">
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               color="primary"
-              className="w-full font-bold rounded"
+              className="w-full rounded font-bold"
               radius="none"
               data-bs-dismiss="offcanvas"
               aria-label="Close"
@@ -126,9 +143,11 @@ export const UpdateStockCartForm = () => {
             </Button>
 
             <Button
+              as={Link}
+              href={internalUrls.addStock}
               variant="ghost"
               color="primary"
-              className="w-full font-bold rounded"
+              className="w-full rounded font-bold"
               radius="none"
             >
               Save and proceed
@@ -138,7 +157,7 @@ export const UpdateStockCartForm = () => {
           <Button
             variant="ghost"
             color="primary"
-            className="w-full font-bold"
+            className="w-full rounded font-bold"
             radius="none"
             data-bs-dismiss="offcanvas"
             aria-label="Close"

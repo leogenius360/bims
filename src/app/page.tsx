@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { ProductCard } from "@/components/product-card";
+import { ProductCard } from "@/components/cards/product-card";
 import { useAuth, withLoginRequired } from "@/auth/provider";
 import { Product } from "@/db/product";
 import { Button, Spinner } from "@nextui-org/react";

@@ -18,8 +18,10 @@ export const internalUrls = {
 	transactions: "/dashboard/transactions",
 	approvals: '/dashboard/approvals',
 	requestStock: "/request-stock",
+	addStock: "/add-stock",
+	checkout: "/checkout",
 
-	
+
 	docs: '/docs',
 	terms: '/terms-and-conditions',
 	privacy: '/privacy',

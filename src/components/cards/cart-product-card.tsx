@@ -1,18 +1,15 @@
 import { Button, Card, CardBody, Image } from "@nextui-org/react";
-import { FiTrash } from "react-icons/fi";
 import { twMerge } from "tailwind-merge";
-import { useCart } from "@/cart/provider";
-import { CartButton, StockCartButton } from "./buttons";
+import { CartButton, StockCartButton } from "../buttons";
 import { Product } from "@/db/product";
 import { useEffect, useState } from "react";
-import { useStockCart } from "@/stock/provider";
 import { CgTrash } from "react-icons/cg";
 
 interface CartProductCardProps {
   productId: string;
   productName: string;
   productPrice: number;
-  productQuantity: number;
+  productQty: number;
   removeProduct: (productId: string) => void;
   className?: string;
 }
@@ -21,7 +18,7 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
   productId,
   productName,
   productPrice,
-  productQuantity,
+  productQty,
   removeProduct,
   className,
 }) => {
@@ -73,34 +70,42 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
 
           <div className="col-span-6 flex flex-col justify-between gap-1 md:col-span-8">
             <div className="flex items-start justify-between">
-              <h3 className="flex flex-col font-semibold">
+              <h6 className="flex flex-col text-sm font-semibold">
                 {productName}
                 <span className="text-sm text-foreground/60">
                   <small className="text-xs">GHC</small>
                   {productPrice.toFixed(2)}
                 </span>
-              </h3>
-              <h6 className="flex flex-col font-semibold">
+              </h6>
+              <h6 className="flex flex-col text-sm font-semibold">
                 <span>
                   Total (<small className="text-xs">GHC</small>)
                 </span>
-                <span>{productQuantity * productPrice}</span>
+                <span>{productQty * productPrice}</span>
               </h6>
             </div>
 
             <div className="mt-2 flex w-full items-center justify-between gap-2">
               <Button
-                className="font-bold"
                 size="sm"
                 color="danger"
                 radius="sm"
                 variant="ghost"
+                startContent={<CgTrash />}
                 onClick={() => removeProduct(productId)}
+                className="font-bold"
               >
                 Remove
               </Button>
 
-              <CartButton productId={productId} />
+              <CartButton
+                product={{
+                  productId: productId,
+                  productName: productName,
+                  productPrice: productPrice,
+                  productQty: 1,
+                }}
+              />
             </div>
           </div>
         </div>
@@ -113,7 +118,7 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
   productId,
   productName,
   productPrice,
-  productQuantity,
+  productQty,
   removeProduct,
   className,
 }) => {
@@ -165,14 +170,14 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
 
           <div className="col-span-6 flex flex-col justify-between gap-1 md:col-span-8">
             <div className="flex items-start justify-between">
-              <h6 className="flex flex-col font-semibold">
+              <h6 className="flex flex-col text-sm font-semibold">
                 {productName}
                 <span className="text-sm text-foreground/60">
                   <small className="text-xs">GHC</small>
-                  {(productQuantity * productPrice).toFixed(2)}
+                  {(productQty * productPrice).toFixed(2)}
                 </span>
               </h6>
-              
+
               <Button
                 isIconOnly
                 size="sm"
@@ -182,12 +187,18 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
                 startContent={<CgTrash size={18} />}
                 onClick={() => removeProduct(productId)}
                 className="font-bold"
-              >
-              </Button>
+              ></Button>
             </div>
 
             <div className="mt-2 flex w-full items-center justify-between gap-2">
-              <StockCartButton productId={productId} />
+              <StockCartButton
+                product={{
+                  productId: productId,
+                  productName: productName,
+                  productPrice: productPrice,
+                  productQty: 1,
+                }}
+              />
             </div>
           </div>
         </div>

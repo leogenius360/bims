@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import NextLink from "next/link";
 import {
   Button,
@@ -14,18 +14,17 @@ import {
   DropdownSection,
   DropdownItem,
   Badge,
-  Avatar,
 } from "@nextui-org/react";
 
 import { internalUrls, siteConfig } from "@/config/site-config";
 import clsx from "clsx";
 
 import { Logo } from "@/components/icons";
-import { FiMenu, FiPhone, FiX } from "react-icons/fi";
+import { FiMenu, FiX } from "react-icons/fi";
 import { FaCartFlatbed } from "react-icons/fa6";
 import { UserProfile } from "@/components/user_profile";
 import { usePathname } from "next/navigation";
-import { SingleThemeSwitch, ThemeSwitch } from "./theme-switch";
+import { SingleThemeSwitch } from "./theme-switch";
 import { SupportButton } from "./buttons";
 import { useAuth } from "@/auth/provider";
 import { useCart } from "@/cart/provider";
@@ -35,7 +34,7 @@ export interface NavbarProps {
   isLoggedIn?: boolean | undefined;
 }
 
-export const Navbar = ({ isLoggedIn }: NavbarProps) => {
+export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();

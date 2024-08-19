@@ -54,7 +54,7 @@ export const StockRequestProvider = ({ children }: StockRequestProviderProps) =>
           p.productId === product.productId
             ? {
                 ...p,
-                productQuantity: p.productQty + product.productQty,
+                productQty: p.productQty + product.productQty,
               }
             : p,
         );

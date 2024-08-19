@@ -52,7 +52,7 @@ export const StockCartProvider = ({ children }: StockCartProviderProps) => {
           p.productId === product.productId
             ? {
                 ...p,
-                productQuantity: p.productQuantity + product.productQuantity,
+                productQty: p.productQty + product.productQty,
               }
             : p,
         );
@@ -77,13 +77,13 @@ export const StockCartProvider = ({ children }: StockCartProviderProps) => {
       prevCart.flatMap((p) => {
         if (p.productId === productId) {
           if (quantity !== undefined) {
-            p.productQuantity = quantity;
+            p.productQty = quantity;
           } else if (plus) {
-            p.productQuantity += 1;
+            p.productQty += 1;
           } else if (minus) {
-            p.productQuantity -= 1;
+            p.productQty -= 1;
           }
-          if (p.productQuantity < 1) {
+          if (p.productQty < 1) {
             return [];
           }
 
@@ -112,7 +112,7 @@ export const StockCartProvider = ({ children }: StockCartProviderProps) => {
   const getTotalStockCost = () => {
     return stockCart.reduce(
       (total, product) =>
-        total + product.productPrice * product.productQuantity,
+        total + product.productPrice * product.productQty,
       0,
     );
   };
