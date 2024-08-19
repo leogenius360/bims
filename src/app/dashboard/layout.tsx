@@ -9,7 +9,7 @@ import {
   dashboardNavItems,
 } from "@/config/site-config";
 import useWindowSize from "@/lib/window_size";
-import DashboardHeader from "@/components/dashboard-header";
+import DashboardHeader from "@/components/headers/dashboard-header";
 import { useAuth } from "@/auth/provider";
 import { isAdminUser, isDeliveryUser } from "@/auth/utils";
 import { Button } from "@nextui-org/react";

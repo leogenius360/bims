@@ -2,14 +2,15 @@ import { Button, Card, CardBody, Image } from "@nextui-org/react";
 import { FiGitCommit } from "react-icons/fi";
 import { twMerge } from "tailwind-merge";
 import { useCart } from "@/cart/provider";
-import { CartButton } from "./buttons";
+import { CartButton, RequestStockButton, StockCartButton } from "./buttons";
 import { Product } from "@/db/product";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 import { isAdminUser, isSalesUser } from "@/auth/utils";
+import { useStockCart } from "@/stock/provider";
 
 interface ProductCardProps {
-  user?: User;
+  user: User | null;
   product: Product;
   filter?: string;
   className?: string;
@@ -22,36 +23,60 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   className,
 }) => {
   const { cart, addProduct } = useCart();
-  const [price, setPrice] = useState<number | null>(null);
-  const [stock, setStock] = useState<number | null>(null);
-  const [pendingOutStock, setPendingOutStock] = useState<number | null>(null);
-  const [pendingStock, setPendingStock] = useState<number | null>(null);
+  const { stockCart, addStockProduct } = useStockCart();
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const price = await product.getPrice();
-        const stock = await product.currentStock();
-        const pendingOutStock = await product.pendingOutStock();
-        const pendingStock = await product.pendingStock();
-
-        setPrice(price);
-        setStock(stock);
-        setPendingOutStock(pendingOutStock);
-        setPendingStock(pendingStock);
-      } catch (err) {
-        setError("Failed to load product data");
-        console.error(err);
-      }
-    };
-
-    fetchData();
-  }, [product]);
 
   if (error) {
     return <div className="text-center text-red-500">{error}</div>;
   }
+
+  const newStockBtn = stockCart.some(
+    (stockProduct) => stockProduct.productId === product.id,
+  ) ? (
+    <StockCartButton productId={product.id} />
+  ) : (
+    <Button
+      className="font-bold"
+      size="sm"
+      color="primary"
+      radius="sm"
+      variant="ghost"
+      onClick={async () =>
+        addStockProduct({
+          productId: product.id,
+          productName: product.name,
+          productPrice: 0,
+          productQuantity: 1,
+        })
+      }
+    >
+      New stock
+    </Button>
+  );
+
+  const addToCartBtn = cart.some(
+    (cartProduct) => cartProduct.productId === product.id,
+  ) ? (
+    <CartButton productId={product.id} />
+  ) : (
+    <Button
+      className="font-bold"
+      size="sm"
+      color="primary"
+      radius="sm"
+      variant="ghost"
+      onClick={async () =>
+        addProduct({
+          productId: product.id,
+          productName: product.name,
+          productPrice: product.price!,
+          productQuantity: 1,
+        })
+      }
+    >
+      Add to cart
+    </Button>
+  );
 
   return (
     <Card
@@ -68,8 +93,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="relative col-span-6 md:col-span-4">
             <Image
               alt="Product image"
-              className="object-cover"
-              height={200}
+              className="max-h-32 object-cover"
+              height={"100%"}
               width="100%"
               radius="sm"
               shadow="md"
@@ -84,67 +109,49 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </h3>
               <h3>
                 <small className="text-xs text-emerald-500">GHC</small>
-                {price !== null ? price : "Loading..."}
+                {product.price.toFixed(2)}
               </h3>
             </div>
 
             <div>
               <small className="inline-flex w-full items-center justify-between font-semibold text-foreground/80">
                 Stock:
-                <span className="text-emerald-400">
-                  {stock !== null ? stock : "Loading..."}
-                </span>
+                <span className="text-emerald-400">{product.stock?.qty}</span>
                 <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
                 <span className="text-red-500">
-                  -{pendingOutStock !== null ? pendingOutStock : "Loading..."}{" "}
-                  out
+                  -{product.stock?.outgoing} out
                 </span>
                 <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
                 <span className="text-emerald-500">
-                  +{pendingStock !== null ? pendingStock : "Loading..."} next
+                  +{product.stock?.incoming} next
                 </span>
               </small>
             </div>
 
             <p>{product.description}</p>
 
-            {(isAdminUser(user) || isSalesUser(user)) && (
-              <div className="mt-auto flex w-full items-center justify-between gap-2">
-                <Button
-                  className="font-bold"
-                  size="sm"
-                  color="primary"
-                  radius="sm"
-                  variant="ghost"
-                >
-                  Request stock
-                </Button>
-                {isSalesUser(user) &&
-                  (cart.some(
-                    (cartProduct) => cartProduct.productId === product.id,
-                  ) ? (
-                    <CartButton productId={product.id} />
-                  ) : (
-                    <Button
-                      className="font-bold"
-                      size="sm"
-                      color="primary"
-                      radius="sm"
-                      variant="ghost"
-                      onClick={async () =>
-                        addProduct({
-                          productId: product.id,
-                          productName: product.name,
-                          productPrice: price!,
-                          productQuantity: 1,
-                        })
-                      }
-                    >
-                      Add to cart
-                    </Button>
-                  ))}
-              </div>
-            )}
+            <div className="mt-auto flex w-full items-center justify-between gap-2">
+              {isAdminUser(user) && (
+                <>
+                  <RequestStockButton
+                    product={{
+                      productId: product.id,
+                      productName: product.name,
+                      productQty: 1,
+                    }}
+                  />
+
+                  {newStockBtn}
+                </>
+              )}
+
+              {isSalesUser(user) && (
+                <>
+                  {newStockBtn}
+                  {addToCartBtn}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </CardBody>

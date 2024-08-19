@@ -1,22 +1,17 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import {
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-} from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { Divider } from "..";
 import { useAuth } from "@/auth/provider";
 import { FirebaseError } from "firebase/app";
 import { storage } from "@/config/firebase-config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { InventoryMethod, NewProductProps, Product } from "@/db/product";
+import { NewProductProps, Product } from "@/db/product";
 import { useRouter } from "next/navigation";
 import { ProductCategory } from "@/db/utils";
 import { FiPlus } from "react-icons/fi";
+import { BaseUser } from "@/types/db";
 
 export const NewProductForm = () => {
   const router = useRouter();
@@ -25,9 +20,10 @@ export const NewProductForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [productData, setProductData] = useState<NewProductProps>({
     name: "",
+    price: 0,
+    stock: { qty: 0, incoming: 0, outgoing: 0 },
     imageUrl: "",
     category: "",
-    inventoryMethod: "" as InventoryMethod,
     description: "",
   });
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -84,12 +80,7 @@ export const NewProductForm = () => {
       return;
     }
 
-    if (!productData.inventoryMethod) {
-      setErrors("Inventory method is required.");
-      return;
-    }
-
-    const product = new Product(productData, user!);
+    const product = new Product(productData, user as BaseUser);
 
     if (file) {
       try {
@@ -99,9 +90,10 @@ export const NewProductForm = () => {
         console.log(product);
         setProductData({
           name: "",
+          price: 0,
+          stock: { qty: 0, incoming: 0, outgoing: 0 },
           imageUrl: "",
           category: "",
-          inventoryMethod: InventoryMethod.FIFO,
           description: "",
         });
         router.refresh();
@@ -136,10 +128,6 @@ export const NewProductForm = () => {
       </div>
 
       <div className="offcanvas-body">
-        <p className="my-2 inline-block text-sm font-semibold">
-          Add a new product by filling the form below
-        </p>
-
         <Divider textContent="form" />
 
         <form onSubmit={handleSubmit} className="mt-3">
@@ -165,6 +153,44 @@ export const NewProductForm = () => {
             />
           </div>
 
+          <div className="flex items-center gap-3">
+            <div className="drop-shadow">
+              <label className="mb-2 block text-xs font-bold">Price</label>
+              <input
+                type="text"
+                value={productData.price}
+                onChange={(e) =>
+                  setProductData((prev) => ({
+                    ...prev,
+                    price: Number(e.target.value),
+                  }))
+                }
+                required
+                placeholder="Product price"
+                className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
+              />
+            </div>
+
+            <div className="drop-shadow">
+              <label className="mb-2 block text-xs font-bold">
+                Current stock
+              </label>
+              <input
+                type="text"
+                value={productData.stock.qty}
+                onChange={(e) =>
+                  setProductData((prev) => ({
+                    ...prev,
+                    stock: { ...prev.stock, qty: Number(e.target.value) },
+                  }))
+                }
+                required
+                placeholder="Enter product initial quantity"
+                className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
+              />
+            </div>
+          </div>
+
           <div className="drop-shadow">
             <div className="flex items-center justify-between">
               <label className="my-2 block text-xs font-bold">Category</label>
@@ -177,9 +203,12 @@ export const NewProductForm = () => {
                 radius="sm"
                 color="primary"
                 variant="light"
-                startContent={<FiPlus size={18} className="dark:text-emerald-400" />}
+                startContent={
+                  <FiPlus size={18} className="dark:text-emerald-400" />
+                }
               ></Button>
             </div>
+
             <select
               title="category"
               value={productData.category}
@@ -200,34 +229,6 @@ export const NewProductForm = () => {
                   {category.label}
                 </option>
               ))}
-            </select>
-          </div>
-
-          <div className="drop-shadow">
-            <label className="my-2 block text-xs font-bold">
-              Inventory Method
-            </label>
-            <select
-              title="inventory method"
-              value={productData.inventoryMethod}
-              onChange={(e) =>
-                setProductData((prev) => ({
-                  ...prev,
-                  inventoryMethod: e.target.value as InventoryMethod,
-                }))
-              }
-              required
-              className="mb-4 w-full truncate rounded-md border border-emerald-200 px-3 py-2 leading-tight focus:border-primary focus:outline-none dark:border-emerald-700 dark:focus:border-emerald-400"
-            >
-              <option value="" disabled>
-                Select Inventory Method
-              </option>
-              <option value={InventoryMethod.FIFO}>
-                FIFO method of stock keeping
-              </option>
-              <option value={InventoryMethod.LIFO}>
-                LIFO method of stock keeping
-              </option>
             </select>
           </div>
 

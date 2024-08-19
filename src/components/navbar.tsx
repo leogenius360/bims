@@ -126,7 +126,7 @@ export const Navbar = ({ isLoggedIn }: NavbarProps) => {
       <NavbarContent className="gap-3 lg:gap-5" justify="end">
         <SingleThemeSwitch />
 
-        {isSalesUser(user?user:undefined) ? (
+        {isSalesUser(user) ? (
           cart.length > 0 ? (
             <Badge content={cart.length} color="primary">
               <Button

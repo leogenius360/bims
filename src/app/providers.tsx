@@ -11,6 +11,8 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/auth/provider";
 import { firebaseConfig } from "@/config/firebase-config";
 import { CartProvider } from "@/cart/provider";
+import { StockCartProvider } from "@/stock/provider";
+import { StockRequestProvider } from "@/stock-request/provider";
 
 export function Providers({ children, ...themeProps }: ThemeProviderProps) {
   const router = useRouter();
@@ -26,7 +28,11 @@ export function Providers({ children, ...themeProps }: ThemeProviderProps) {
           authProvider="firebase"
           firebase={{ config: firebaseConfig }}
         >
-          <CartProvider>{children}</CartProvider>
+          <StockRequestProvider>
+            <StockCartProvider>
+              <CartProvider>{children}</CartProvider>
+            </StockCartProvider>
+          </StockRequestProvider>
         </AuthProvider>
       </NextThemesProvider>
     </NextUIProvider>

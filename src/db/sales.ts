@@ -2,10 +2,11 @@ import { db } from "@/config/firebase-config";
 import { doc, getDoc, getDocs, collection, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { Product } from "./product";
 import { User } from "firebase/auth";
+import { BaseUser } from "@/types/db";
 
 
 export interface TransactionVerification {
-    user: User;
+    user: BaseUser | User;
     isVerified: boolean;
 }
 export interface SalesProductProps {
@@ -20,48 +21,49 @@ export enum PaymentStatus {
     PartPayment = "part payment",
 }
 
-export interface SalesPaymentProps {
-    amountPaid: number;
-    balance: number;
-    status: PaymentStatus;
+export interface PaymentProps {
+    amountPaid?: number;
+    balance?: number;
+    status?: PaymentStatus;
 }
 
 export interface SalesProps {
-    description: string;
     products: SalesProductProps[];
-    payment: SalesPaymentProps
+    payment?: PaymentProps
     expenses: number;
-
-    verifications: TransactionVerification[];
-    processedBy: string;
-    date: Date;
+    description: string;
 }
 
 export class Sales {
     id: string;
     products: SalesProductProps[];
-    description: string;
-    payment: SalesPaymentProps;
+    payment?: PaymentProps;
     expenses: number
+    description: string;
 
     verifications: TransactionVerification[]
     processedBy: string
     date: Date
 
-    constructor({ description, products, payment, expenses, verifications, processedBy }: SalesProps) {
-        this.id = "";
-        this.description = description;
-        this.products = products;
+    constructor({ description, products, payment, expenses }: SalesProps, authUser?: BaseUser) {
+        this.id = ""
+        this.products = products
         this.payment = payment;
         this.expenses = expenses
-        this.verifications = verifications
-        this.processedBy = processedBy
+        this.description = description
+        this.verifications = []
+        this.processedBy = authUser?.displayName ? authUser.displayName : authUser?.email ? authUser.email : "undefined";
         this.date = new Date()
     }
 
     async getTotalPrice(): Promise<number> {
         return this.products.reduce((total, product) => total + product.price * product.qty, 0);
     }
+
+    isVerified = () => {
+        return this.verifications.every((verification) => verification.isVerified);
+    };
+
 
     static async get(id: string): Promise<Sales | null> {
         const docRef = doc(db, 'Sales', id);
@@ -109,8 +111,8 @@ export class Sales {
         for (const product of this.products) {
             const p = await Product.get(product.id);
             if (p) {
-                await p.updateStock(product.qty);
-            }
+                await p.updateStock({qty: product.qty, isSales:true});
+            } else throw Error(`Product ${product.name} does not exist in products`) // else remove the product `p` from the sales products
         }
         const docRef = doc(db, 'Sales', this.id);
         await setDoc(docRef, {
@@ -127,7 +129,8 @@ export class Sales {
 
     async updatePayment({ amountPaid }: { amountPaid: number }): Promise<void> {
         const docRef = doc(db, 'Sales', this.id);
-        const currentAmount = this.payment.amountPaid + amountPaid;
+        if (!this.payment) this.payment = { amountPaid: 0 }
+        const currentAmount = this.payment.amountPaid! + amountPaid;
         const totalPrice = await this.getTotalPrice();
         await updateDoc(docRef, {
             'payment.amountPaid': currentAmount,
@@ -147,11 +150,13 @@ export class Sales {
         }
     }
 
-    async verify(verifiedBy: string): Promise<void> {
-        const docRef = doc(db, 'Sales', this.id);
-        await updateDoc(docRef, {
-            isVerified: true,
-            verifiedBy: verifiedBy
-        });
+    async verify(user: User): Promise<void> {
+        const docRef = doc(db, "Sales", this.id);
+        if (this.verifications.some((v) => v.user.email === user.email && v.isVerified)) {
+            console.warn("User has already verified this stock.");
+            return;
+        }
+        this.verifications.push({ user: user, isVerified: true });
+        await updateDoc(docRef, { verifications: this.verifications });
     }
 }

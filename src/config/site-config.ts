@@ -17,6 +17,7 @@ export const internalUrls = {
 	products: '/dashboard/products',
 	transactions: "/dashboard/transactions",
 	approvals: '/dashboard/approvals',
+	requestStock: "/request-stock",
 
 	
 	docs: '/docs',

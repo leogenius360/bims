@@ -125,12 +125,12 @@ export const withLoginRequired = (Component: React.ComponentType) => {
     const pathname = usePathname();
 
     useEffect(() => {
-      if (!loading && !user && requireAuth.includes(pathname)) {
+      if (!loading && !user) {
         router.push(`${internalUrls.login}?redirect=${pathname}`);
       }
     }, [user, loading, pathname, router]);
 
-    if (loading || (!user && requireAuth.includes(pathname))) {
+    if (loading || !user) {
       return (
         <Modal
           backdrop="opaque"

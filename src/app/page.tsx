@@ -3,9 +3,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { ProductCard } from "@/components/product-card";
 import { useAuth, withLoginRequired } from "@/auth/provider";
-import { InventoryMethod, Product } from "@/db/product";
+import { Product } from "@/db/product";
 import { Button, Spinner } from "@nextui-org/react";
-import { ProductHeadline } from "@/components/product-headline";
+import { HomePageHeader } from "@/components/headers/homepage-header";
+import { BaseUser } from "@/types/db";
 
 const LandingPage = () => {
   const { user } = useAuth();
@@ -53,7 +54,7 @@ const LandingPage = () => {
       const matchesSearch = searchTerm
         ? product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.description.toLowerCase().includes(searchTerm.toLowerCase())
+          product.description?.toLowerCase().includes(searchTerm.toLowerCase())
         : true;
 
       return matchesCategory && matchesSearch;
@@ -69,7 +70,7 @@ const LandingPage = () => {
   return (
     <>
       <div className="">
-        <ProductHeadline
+        <HomePageHeader
           aria-label="Filter"
           user={user!}
           categories={categories}
@@ -104,12 +105,13 @@ const LandingPage = () => {
                     new Product(
                       {
                         name: product.name,
+                        price: product.price,
+                        stock: product.stock,
                         imageUrl: product.imageUrl,
                         category: product.category,
-                        inventoryMethod: InventoryMethod.FIFO,
                         description: product.description,
                       },
-                      user!,
+                      user as BaseUser,
                     )
                   }
                   filter={selectedValue}

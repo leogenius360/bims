@@ -7,7 +7,7 @@ export interface CartProduct {
   productQuantity: number;
 }
 
-interface CartContextType {
+export interface CartContextType {
   cart: CartProduct[];
   addProduct: (product: CartProduct) => void;
   updateProductQuantity: ({
@@ -36,7 +36,7 @@ export const useCart = () => {
   return context;
 };
 
-interface CartProviderProps {
+export interface CartProviderProps {
   children: ReactNode;
 }
 

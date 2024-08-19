@@ -13,7 +13,7 @@ import { User } from "firebase/auth";
 import { isAdminUser } from "@/auth/utils";
 
 interface DashboardHeaderProps {
-  user?: User;
+  user: User;
   keys: string[];
   setSelectedKeys: (keys: Set<string>) => void;
   selectedKeys: Set<string>;
