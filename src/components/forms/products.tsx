@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@nextui-org/react";
 import { Divider } from "..";
 import { useAuth } from "@/auth/provider";
@@ -29,7 +29,7 @@ export const NewProductForm = () => {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
+  useMemo(() => {
     const fetchCategories = async () => {
       try {
         const categories = await ProductCategory.getAll();

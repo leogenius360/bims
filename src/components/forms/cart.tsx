@@ -1,14 +1,21 @@
 "use client";
 
-import { Button } from "@nextui-org/react";
+import { Button, UseDisclosureProps } from "@nextui-org/react";
 import { Divider } from "..";
 import { useCart } from "@/cart/provider";
-import { CartProductCard, StockCartProductCard } from "../cards/cart-product-card";
+import {
+  CartProductCard,
+  StockCartProductCard,
+} from "../cards/cart-product-card";
 import { useStockCart } from "@/stock/provider";
 import Link from "next/link";
 import { internalUrls } from "@/config/site-config";
 
-export const UpdateCartForm = () => {
+interface CartFormProps {
+  newSalesModal?: UseDisclosureProps;
+}
+
+export const UpdateCartForm = ({ newSalesModal }: CartFormProps) => {
   const { cart, getTotalCost, removeProduct } = useCart();
 
   return (
@@ -36,11 +43,11 @@ export const UpdateCartForm = () => {
         <section className="flex flex-wrap gap-3">
           {cart.map((product) => (
             <CartProductCard
-              key={product.productId}
-              productId={product.productId}
-              productName={product.productName}
-              productPrice={product.productPrice}
-              productQty={product.productQty}
+              key={product.id}
+              id={product.id}
+              name={product.name}
+              price={product.price}
+              qty={product.qty}
               removeProduct={removeProduct}
             />
           ))}
@@ -60,13 +67,13 @@ export const UpdateCartForm = () => {
               Add more products
             </Button>
             <Button
-              as={Link}
-              href={internalUrls.checkout}
+              aria-label="Close"
               data-bs-dismiss="offcanvas"
               variant="ghost"
               color="primary"
               radius="none"
               className="w-full rounded font-bold"
+              onPress={newSalesModal?.onOpen}
             >
               Proceed to checkout
             </Button>
@@ -88,7 +95,10 @@ export const UpdateCartForm = () => {
   );
 };
 
-export const UpdateStockCartForm = () => {
+interface StockCartFormProps {
+  newStockModal?: UseDisclosureProps;
+}
+export const UpdateStockCartForm = ({ newStockModal }: StockCartFormProps) => {
   const { stockCart, getTotalStockCost, removeStockProduct } = useStockCart();
 
   return (
@@ -118,11 +128,11 @@ export const UpdateStockCartForm = () => {
         <section className="flex flex-wrap gap-3">
           {stockCart.map((product) => (
             <StockCartProductCard
-              key={product.productId}
-              productId={product.productId}
-              productName={product.productName}
-              productPrice={product.productPrice}
-              productQty={product.productQty}
+              key={product.id}
+              id={product.id}
+              name={product.name}
+              price={product.price}
+              qty={product.qty}
               removeProduct={removeStockProduct}
             />
           ))}
@@ -143,12 +153,13 @@ export const UpdateStockCartForm = () => {
             </Button>
 
             <Button
-              as={Link}
-              href={internalUrls.addStock}
               variant="ghost"
               color="primary"
               className="w-full rounded font-bold"
               radius="none"
+              onPress={newStockModal?.onOpen}
+              data-bs-dismiss="offcanvas"
+              aria-label="Close"
             >
               Save and proceed
             </Button>

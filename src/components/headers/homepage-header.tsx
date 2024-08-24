@@ -7,6 +7,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  UseDisclosureProps,
 } from "@nextui-org/react";
 import { TiFilter } from "react-icons/ti";
 import { TbFilterSearch } from "react-icons/tb";

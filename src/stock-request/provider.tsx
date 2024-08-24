@@ -2,26 +2,26 @@ import { CartContextType, CartProduct } from "@/cart/provider";
 import { createContext, useContext, useState, ReactNode } from "react";
 
 export interface StockRequestProduct{
-  productId: string;
-  productName: string;
-  productQty: number
+  id: string;
+  name: string;
+  qty: number
 }
 
 interface StockRequestContextType {
   stockRequests: StockRequestProduct[];
   addRequestedProduct: (product: StockRequestProduct) => void;
   updateRequestedProductQty: ({
-    productId,
+    id,
     quantity,
     plus,
     minus,
   }: {
-    productId: string;
+    id: string;
     quantity?: number;
     plus?: boolean;
     minus?: boolean;
   }) => void;
-  removeRequestedProduct: (productId: string) => void;
+  removeRequestedProduct: (id: string) => void;
   clearStockRequests: () => void;
 }
 
@@ -47,14 +47,14 @@ export const StockRequestProvider = ({ children }: StockRequestProviderProps) =>
   const addRequestedProduct = (product: StockRequestProduct) => {
     setStockRequests((prevCart) => {
       const existingProduct = prevCart.find(
-        (p) => p.productId === product.productId,
+        (p) => p.id === product.id,
       );
       if (existingProduct) {
         return prevCart.map((p) =>
-          p.productId === product.productId
+          p.id === product.id
             ? {
                 ...p,
-                productQty: p.productQty + product.productQty,
+                qty: p.qty + product.qty,
               }
             : p,
         );
@@ -65,27 +65,27 @@ export const StockRequestProvider = ({ children }: StockRequestProviderProps) =>
   };
 
   const updateRequestedProductQty = ({
-    productId,
+    id,
     quantity,
     plus = false,
     minus = false,
   }: {
-    productId: string;
+    id: string;
     quantity?: number;
     plus?: boolean;
     minus?: boolean;
   }) => {
     setStockRequests((prevCart) =>
       prevCart.flatMap((p) => {
-        if (p.productId === productId) {
+        if (p.id === id) {
           if (quantity !== undefined) {
-            p.productQty = quantity;
+            p.qty = quantity;
           } else if (plus) {
-            p.productQty += 1;
+            p.qty += 1;
           } else if (minus) {
-            p.productQty -= 1;
+            p.qty -= 1;
           }
-          if (p.productQty < 1) {
+          if (p.qty < 1) {
             return [];
           }
 
@@ -97,9 +97,9 @@ export const StockRequestProvider = ({ children }: StockRequestProviderProps) =>
     );
   };
 
-  const removeRequestedProduct = (productId: string) => {
+  const removeRequestedProduct = (id: string) => {
     setStockRequests((prevCart) =>
-      prevCart.filter((p) => p.productId !== productId),
+      prevCart.filter((p) => p.id !== id),
     );
   };
 

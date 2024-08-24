@@ -2,6 +2,9 @@ import { db } from '@/config/firebase-config';
 import { doc, setDoc, getDoc, updateDoc, getDocs, collection, deleteDoc } from 'firebase/firestore';
 import { PaymentProps, PaymentStatus, SalesProductProps, SalesProps, TransactionVerification } from './sales';
 import { BaseUser } from '@/types/db';
+import { StockRequestProduct } from '@/stock-request/provider';
+import { isAdminUser } from '@/auth/utils';
+import { User } from 'firebase/auth';
 
 
 export interface ProductStockProps {
@@ -99,20 +102,20 @@ export class Product {
         await updateDoc(docRef, { ...data });
     }
 
-    async updateStock({qty, isSales, pending = true}:{qty: number, isSales?: boolean, pending?: boolean}): Promise<void> {
+    async updateStock({ qty, isSales, pending = true }: { qty: number, isSales?: boolean, pending?: boolean }): Promise<void> {
         if (isSales) {
             if (this.stock?.qty) this.stock?.qty - qty
-            else this.stock= {...this.stock, incoming: qty}
+            else this.stock = { ...this.stock, incoming: qty }
         } else if (pending) {
             if (this.stock?.incoming) {
                 this.stock.incoming += qty
             } else {
-                this.stock= {...this.stock, incoming: qty}
+                this.stock = { ...this.stock, incoming: qty }
             }
         } else if (this.stock?.qty) {
-                this.stock.qty += qty
+            this.stock.qty += qty
         } else {
-            this.stock= {...this.stock, qty: qty}
+            this.stock = { ...this.stock, qty: qty }
         }
 
         await this.save()
@@ -207,7 +210,7 @@ export class Stock {
         for (const product of this.products) {
             const p = await Product.get(product.id);
             if (p) {
-                await p.updateStock({qty: product.qty, pending: false});
+                await p.updateStock({ qty: product.qty, pending: false });
             } else throw Error(`Product ${product.name} does not exist in products`) // else remove the product `p` the stock products
         }
         const docRef = doc(db, 'Stocks', this.id);
@@ -248,6 +251,125 @@ export class Stock {
 
     async verify(user: BaseUser): Promise<void> {
         const docRef = doc(db, "Stocks", this.id);
+        if (this.verifications.some((v) => v.user.email === user.email && v.isVerified)) {
+            console.warn("User has already verified this stock.");
+            return;
+        }
+        this.verifications.push({ user: user, isVerified: true });
+        await updateDoc(docRef, { verifications: this.verifications });
+    }
+}
+
+
+export interface SupplierProps {
+    name: string;
+    email?: string;
+    contact?: string;
+    address?: string
+}
+
+export interface StockRequestProps {
+    products: StockRequestProduct[];
+    supplier: SupplierProps
+}
+
+export class StockRequest {
+    id: string;
+    products: StockRequestProduct[];
+    supplier?: SupplierProps;
+
+    verifications: TransactionVerification[]
+    processedBy: string
+    date!: Date
+
+    constructor({ products, supplier }: StockRequestProps, authUser?: BaseUser) {
+        this.id = ""
+        this.products = products
+        this.supplier = supplier;
+        this.verifications = isAdminUser(authUser as User) ? [{ user: authUser as User, isVerified: true }] : []
+        this.processedBy = authUser?.displayName ? authUser.displayName : authUser?.email ? authUser.email : "undefined";
+        // this.date = new Date()
+    }
+
+    isVerified = () => {
+        return this.verifications.every((verification) => verification.isVerified);
+    };
+
+
+    static async get(id: string): Promise<StockRequest | null> {
+        const docRef = doc(db, 'Stock Requests', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const req = new StockRequest({
+                products: data.products,
+                supplier: data.supplier,
+            });
+            req.verifications = data.verifications,
+                req.processedBy = data.processedBy
+            req.id = data.id;
+            req.date = data.date;
+            return req;
+        } else {
+            return null;
+        }
+    }
+
+    static async getAll(): Promise<StockRequest[]> {
+        const allRequest: StockRequest[] = [];
+        const querySnapshot = await getDocs(collection(db, 'Stock Requests'));
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const req = new StockRequest({
+                products: data.products,
+                supplier: data.supplier,
+            });
+            req.verifications = data.verifications,
+                req.processedBy = data.processedBy
+            req.id = data.id;
+            req.date = data.date;
+            allRequest.push(req);
+        });
+        return allRequest;
+    }
+
+    async save(): Promise<void> {
+        this.id = `${this.processedBy}::${new Date().toISOString()}`;
+        const docRef = doc(db, 'Stock Requests', this.id);
+
+        // Serialize verifications
+        const serializedVerifications = this.verifications.map((verification) => ({
+            user: {
+                email: verification.user.email,
+                displayName: verification.user.displayName,
+            },
+            isVerified: verification.isVerified,
+        }));
+
+        await setDoc(docRef, {
+            id: this.id,
+            products: this.products,
+            supplier: this.supplier,
+            verifications: serializedVerifications,
+            processedBy: this.processedBy,
+            date: new Date()
+        });
+    }
+
+
+    async delete(): Promise<void> {
+        const docRef = doc(db, 'Stock Requests', this.id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (!data.payment.status.includes(PaymentStatus.FullPayment)) {
+                await deleteDoc(docRef);
+            }
+        }
+    }
+
+    async verify(user: BaseUser): Promise<void> {
+        const docRef = doc(db, "Stock Requests", this.id);
         if (this.verifications.some((v) => v.user.email === user.email && v.isVerified)) {
             console.warn("User has already verified this stock.");
             return;

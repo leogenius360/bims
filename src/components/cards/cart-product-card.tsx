@@ -6,19 +6,19 @@ import { useEffect, useState } from "react";
 import { CgTrash } from "react-icons/cg";
 
 interface CartProductCardProps {
-  productId: string;
-  productName: string;
-  productPrice: number;
-  productQty: number;
-  removeProduct: (productId: string) => void;
+  id: string;
+  name: string;
+  price: number;
+  qty: number;
+  removeProduct: (id: string) => void;
   className?: string;
 }
 
 export const CartProductCard: React.FC<CartProductCardProps> = ({
-  productId,
-  productName,
-  productPrice,
-  productQty,
+  id,
+  name,
+  price,
+  qty,
   removeProduct,
   className,
 }) => {
@@ -28,7 +28,7 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
   useEffect(() => {
     const fetchProductImage = async () => {
       try {
-        const product = await Product.get(productId); // assuming a function exists to fetch product details by ID
+        const product = await Product.get(id); // assuming a function exists to fetch product details by ID
         setImageUrl(product!.imageUrl);
       } catch (err) {
         setError("Failed to load product image");
@@ -37,7 +37,7 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
     };
 
     fetchProductImage();
-  }, [productId]);
+  }, [id]);
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
@@ -71,17 +71,17 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
           <div className="col-span-6 flex flex-col justify-between gap-1 md:col-span-8">
             <div className="flex items-start justify-between">
               <h6 className="flex flex-col text-sm font-semibold">
-                {productName}
+                {name}
                 <span className="text-sm text-foreground/60">
                   <small className="text-xs">GHC</small>
-                  {productPrice.toFixed(2)}
+                  {price.toFixed(2)}
                 </span>
               </h6>
               <h6 className="flex flex-col text-sm font-semibold">
                 <span>
                   Total (<small className="text-xs">GHC</small>)
                 </span>
-                <span>{productQty * productPrice}</span>
+                <span>{qty * price}</span>
               </h6>
             </div>
 
@@ -92,7 +92,7 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
                 radius="sm"
                 variant="ghost"
                 startContent={<CgTrash />}
-                onClick={() => removeProduct(productId)}
+                onClick={() => removeProduct(id)}
                 className="font-bold"
               >
                 Remove
@@ -100,10 +100,10 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
 
               <CartButton
                 product={{
-                  productId: productId,
-                  productName: productName,
-                  productPrice: productPrice,
-                  productQty: 1,
+                  id: id,
+                  name: name,
+                  price: price,
+                  qty: 1,
                 }}
               />
             </div>
@@ -115,10 +115,10 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
 };
 
 export const StockCartProductCard: React.FC<CartProductCardProps> = ({
-  productId,
-  productName,
-  productPrice,
-  productQty,
+  id,
+  name,
+  price,
+  qty,
   removeProduct,
   className,
 }) => {
@@ -128,7 +128,7 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
   useEffect(() => {
     const fetchProductImage = async () => {
       try {
-        const product = await Product.get(productId);
+        const product = await Product.get(id);
         setImageUrl(product!.imageUrl);
       } catch (err) {
         setError("Failed to load product image");
@@ -137,7 +137,7 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
     };
 
     fetchProductImage();
-  }, [productId]);
+  }, [id]);
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
@@ -171,10 +171,10 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
           <div className="col-span-6 flex flex-col justify-between gap-1 md:col-span-8">
             <div className="flex items-start justify-between">
               <h6 className="flex flex-col text-sm font-semibold">
-                {productName}
+                {name}
                 <span className="text-sm text-foreground/60">
                   <small className="text-xs">GHC</small>
-                  {(productQty * productPrice).toFixed(2)}
+                  {(qty * price).toFixed(2)}
                 </span>
               </h6>
 
@@ -185,7 +185,7 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
                 radius="sm"
                 variant="light"
                 startContent={<CgTrash size={18} />}
-                onClick={() => removeProduct(productId)}
+                onClick={() => removeProduct(id)}
                 className="font-bold"
               ></Button>
             </div>
@@ -193,10 +193,10 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
             <div className="mt-2 flex w-full items-center justify-between gap-2">
               <StockCartButton
                 product={{
-                  productId: productId,
-                  productName: productName,
-                  productPrice: productPrice,
-                  productQty: 1,
+                  id: id,
+                  name: name,
+                  price: price,
+                  qty: 1,
                 }}
               />
             </div>

@@ -1,27 +1,23 @@
+import { SalesProductProps } from "@/db/sales";
 import { createContext, useContext, useState, ReactNode } from "react";
 
-export interface CartProduct {
-  productId: string;
-  productName: string;
-  productPrice: number;
-  productQty: number;
-}
+export interface CartProduct extends SalesProductProps { }
 
 export interface CartContextType {
   cart: CartProduct[];
   addProduct: (product: CartProduct) => void;
   updateProductQty: ({
-    productId,
+    id,
     quantity,
     plus,
     minus,
   }: {
-    productId: string;
+    id: string;
     quantity?: number;
     plus?: boolean;
     minus?: boolean;
   }) => void;
-  removeProduct: (productId: string) => void;
+  removeProduct: (id: string) => void;
   getTotalCost: () => number;
   clearCart: () => void;
 }
@@ -46,14 +42,14 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const addProduct = (product: CartProduct) => {
     setCart((prevCart) => {
       const existingProduct = prevCart.find(
-        (p) => p.productId === product.productId,
+        (p) => p.id === product.id,
       );
       if (existingProduct) {
         return prevCart.map((p) =>
-          p.productId === product.productId
+          p.id === product.id
             ? {
                 ...p,
-                productQty: p.productQty + product.productQty,
+                qty: p.qty + product.qty,
               }
             : p,
         );
@@ -64,27 +60,27 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
 
   const updateProductQty = ({
-    productId,
+    id,
     quantity,
     plus = false,
     minus = false,
   }: {
-    productId: string;
+    id: string;
     quantity?: number;
     plus?: boolean;
     minus?: boolean;
   }) => {
     setCart((prevCart) =>
       prevCart.flatMap((p) => {
-        if (p.productId === productId) {
+        if (p.id === id) {
           if (quantity !== undefined) {
-            p.productQty = quantity;
+            p.qty = quantity;
           } else if (plus) {
-            p.productQty += 1;
+            p.qty += 1;
           } else if (minus) {
-            p.productQty -= 1;
+            p.qty -= 1;
           }
-          if (p.productQty < 1) {
+          if (p.qty < 1) {
             return [];
           }
 
@@ -96,14 +92,14 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     );
   };
 
-  const removeProduct = (productId: string) => {
-    setCart((prevCart) => prevCart.filter((p) => p.productId !== productId));
+  const removeProduct = (id: string) => {
+    setCart((prevCart) => prevCart.filter((p) => p.id !== id));
   };
 
   const getTotalCost = () => {
     return cart.reduce(
       (total, product) =>
-        total + product.productPrice * product.productQty,
+        total + product.price * product.qty,
       0,
     );
   };

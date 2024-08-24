@@ -7,18 +7,18 @@ interface StockCartContextType {
   stockCart: StockCartProduct[];
   addStockProduct: (product: StockCartProduct) => void;
   updateStockProductQty: ({
-    productId,
+    id,
     quantity,
     plus,
     minus,
   }: {
-    productId: string;
+    id: string;
     quantity?: number;
     plus?: boolean;
     minus?: boolean;
   }) => void;
-  updateStockProductPrice: (productId: string, price: number) => void;
-  removeStockProduct: (productId: string) => void;
+  updateStockProductPrice: (id: string, price: number) => void;
+  removeStockProduct: (id: string) => void;
   getTotalStockCost: () => number;
   clearStockCart: () => void;
 }
@@ -45,14 +45,14 @@ export const StockCartProvider = ({ children }: StockCartProviderProps) => {
   const addStockProduct = (product: StockCartProduct) => {
     setStockCart((prevCart) => {
       const existingProduct = prevCart.find(
-        (p) => p.productId === product.productId,
+        (p) => p.id === product.id,
       );
       if (existingProduct) {
         return prevCart.map((p) =>
-          p.productId === product.productId
+          p.id === product.id
             ? {
                 ...p,
-                productQty: p.productQty + product.productQty,
+                qty: p.qty + product.qty,
               }
             : p,
         );
@@ -63,27 +63,27 @@ export const StockCartProvider = ({ children }: StockCartProviderProps) => {
   };
 
   const updateStockProductQty = ({
-    productId,
+    id,
     quantity,
     plus = false,
     minus = false,
   }: {
-    productId: string;
+    id: string;
     quantity?: number;
     plus?: boolean;
     minus?: boolean;
   }) => {
     setStockCart((prevCart) =>
       prevCart.flatMap((p) => {
-        if (p.productId === productId) {
+        if (p.id === id) {
           if (quantity !== undefined) {
-            p.productQty = quantity;
+            p.qty = quantity;
           } else if (plus) {
-            p.productQty += 1;
+            p.qty += 1;
           } else if (minus) {
-            p.productQty -= 1;
+            p.qty -= 1;
           }
-          if (p.productQty < 1) {
+          if (p.qty < 1) {
             return [];
           }
 
@@ -95,24 +95,24 @@ export const StockCartProvider = ({ children }: StockCartProviderProps) => {
     );
   };
 
-  const updateStockProductPrice = (productId: string, price: number) => {
+  const updateStockProductPrice = (id: string, price: number) => {
     setStockCart((prev) =>
       prev.map((p) =>
-        p.productId === productId ? { ...p, productPrice: price } : p,
+        p.id === id ? { ...p, price: price } : p,
       ),
     );
   };
 
-  const removeStockProduct = (productId: string) => {
+  const removeStockProduct = (id: string) => {
     setStockCart((prevCart) =>
-      prevCart.filter((p) => p.productId !== productId),
+      prevCart.filter((p) => p.id !== id),
     );
   };
 
   const getTotalStockCost = () => {
     return stockCart.reduce(
       (total, product) =>
-        total + product.productPrice * product.productQty,
+        total + product.price * product.qty,
       0,
     );
   };

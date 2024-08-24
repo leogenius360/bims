@@ -64,13 +64,13 @@ export const GoogleLoginButton = () => {
 
 export const CartButton = ({ product }: { product: CartProduct }) => {
   const { cart, addProduct, updateProductQty } = useCart();
-  const cartProduct = cart.find((p) => p.productId === product.productId);
+  const cartProduct = cart.find((p) => p.id === product.id);
 
   return cartProduct ? (
     <Input
       type="text"
       placeholder="0"
-      value={cartProduct?.productQty.toString() || "0"}
+      value={cartProduct?.qty.toString() || "0"}
       size="sm"
       radius="sm"
       color="primary"
@@ -83,7 +83,7 @@ export const CartButton = ({ product }: { product: CartProduct }) => {
           color="primary"
           variant="solid"
           onClick={() =>
-            updateProductQty({ productId: product.productId, minus: true })
+            updateProductQty({ id: product.id, minus: true })
           }
         >
           <FiMinus size={18} />
@@ -97,7 +97,7 @@ export const CartButton = ({ product }: { product: CartProduct }) => {
           color="primary"
           variant="solid"
           onClick={() =>
-            updateProductQty({ productId: product.productId, plus: true })
+            updateProductQty({ id: product.id, plus: true })
           }
         >
           <FiPlus size={18} />
@@ -105,7 +105,7 @@ export const CartButton = ({ product }: { product: CartProduct }) => {
       }
       onChange={(e) =>
         updateProductQty({
-          productId: product.productId,
+          id: product.id,
           quantity: Number(e.target.value),
         })
       }
@@ -125,10 +125,10 @@ export const CartButton = ({ product }: { product: CartProduct }) => {
       variant="ghost"
       onClick={async () =>
         addProduct({
-          productId: product.productId,
-          productName: product.productName,
-          productPrice: product.productPrice,
-          productQty: 1,
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty: 1,
         })
       }
     >
@@ -145,7 +145,7 @@ export const StockCartButton = ({ product }: { product: StockCartProduct }) => {
     updateStockProductPrice,
   } = useStockCart();
 
-  const cartProduct = stockCart.find((p) => p.productId === product.productId);
+  const cartProduct = stockCart.find((p) => p.id === product.id);
 
   // if (!cartProduct) {
   //   return <span className="text-xs text-red-600">Unknown Error ...</span>;
@@ -157,7 +157,7 @@ export const StockCartButton = ({ product }: { product: StockCartProduct }) => {
         type="text"
         placeholder="0.00"
         defaultValue="0.00"
-        value={cartProduct?.productPrice.toString()}
+        value={cartProduct?.price.toString()}
         size="sm"
         radius="sm"
         color="primary"
@@ -173,7 +173,7 @@ export const StockCartButton = ({ product }: { product: StockCartProduct }) => {
           input: "font-semibold",
         }}
         onChange={(e) =>
-          updateStockProductPrice(product.productId, Number(e.target.value))
+          updateStockProductPrice(product.id, Number(e.target.value))
         }
       />
 
@@ -181,7 +181,7 @@ export const StockCartButton = ({ product }: { product: StockCartProduct }) => {
         type="text"
         placeholder="0"
         defaultValue="0"
-        value={cartProduct.productQty.toString()}
+        value={cartProduct.qty.toString()}
         size="sm"
         radius="sm"
         color="primary"
@@ -198,7 +198,7 @@ export const StockCartButton = ({ product }: { product: StockCartProduct }) => {
         }}
         onChange={(e) =>
           updateStockProductQty({
-            productId: product.productId,
+            id: product.id,
             quantity: Number(e.target.value),
           })
         }
@@ -213,10 +213,10 @@ export const StockCartButton = ({ product }: { product: StockCartProduct }) => {
       variant="ghost"
       onClick={async () =>
         addStockProduct({
-          productId: product.productId,
-          productName: product.productName,
-          productPrice: 0,
-          productQty: 1,
+          id: product.id,
+          name: product.name,
+          price: 0,
+          qty: 1,
         })
       }
     >
@@ -233,14 +233,14 @@ export const RequestStockButton = ({
   const { stockRequests, addRequestedProduct, updateRequestedProductQty } =
     useStockRequests();
   const stockRequestsProduct = stockRequests.find(
-    (p) => p.productId === product.productId,
+    (p) => p.id === product.id,
   );
 
   return stockRequestsProduct ? (
     <Input
       type="text"
       placeholder="0"
-      value={stockRequestsProduct.productQty.toString() || "0"}
+      value={stockRequestsProduct.qty.toString() || "0"}
       size="sm"
       radius="sm"
       color="primary"
@@ -254,7 +254,7 @@ export const RequestStockButton = ({
           variant="solid"
           onClick={() =>
             updateRequestedProductQty({
-              productId: product.productId,
+              id: product.id,
               minus: true,
             })
           }
@@ -271,7 +271,7 @@ export const RequestStockButton = ({
           variant="solid"
           onClick={() =>
             updateRequestedProductQty({
-              productId: product.productId,
+              id: product.id,
               plus: true,
             })
           }
@@ -281,7 +281,7 @@ export const RequestStockButton = ({
       }
       onChange={(e) =>
         updateRequestedProductQty({
-          productId: product.productId,
+          id: product.id,
           quantity: Number(e.target.value),
         })
       }
@@ -301,9 +301,9 @@ export const RequestStockButton = ({
       variant="ghost"
       onClick={async () =>
         addRequestedProduct({
-          productId: product.productId,
-          productName: product.productName,
-          productQty: product.productQty,
+          id: product.id,
+          name: product.name,
+          qty: product.qty,
         })
       }
     >

@@ -8,6 +8,7 @@ import { ProductCategory } from "@/db/utils";
 import { FirebaseError } from "firebase/app";
 
 export const NewProductCategoryForm = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const [errors, setErrors] = useState<string>("");
   const [categories, setCategories] = useState<{ label: string }[]>([
@@ -46,6 +47,7 @@ export const NewProductCategoryForm = () => {
 
       // Reset the form
       setCategories([{ label: "" }]);
+      router.refresh()
     } catch (e) {
       const error = e as FirebaseError;
       console.error("Save error: ", error);

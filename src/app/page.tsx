@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { ProductCard } from "@/components/cards/product-card";
 import { useAuth, withLoginRequired } from "@/auth/provider";
 import { Product } from "@/db/product";
-import { Button, Spinner } from "@nextui-org/react";
+import { Spinner } from "@nextui-org/react";
 import { HomePageHeader } from "@/components/headers/homepage-header";
 import { BaseUser } from "@/types/db";
 
@@ -114,7 +114,6 @@ const LandingPage = () => {
                       user as BaseUser,
                     )
                   }
-                  filter={selectedValue}
                   className="h-full w-full"
                 />
               ))}

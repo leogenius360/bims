@@ -45,7 +45,7 @@ const DashboardHeader = ({
   const { stockCart } = useStockCart();
   const { stockRequests } = useStockRequests();
   return (
-    <section className="flex sticky top-0 items-center justify-between gap-3 px-3 py-3 md:px-6 md:py-4">
+    <section className="flex sticky top-0 items-center justify-between gap-3 p-3 md:p-5">
       <div className="flex items-center gap-12">
         <button
           aria-label="Menu"

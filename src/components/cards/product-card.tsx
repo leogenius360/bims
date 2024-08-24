@@ -17,15 +17,8 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({
   user,
   product,
-  filter,
   className,
 }) => {
-  const [error, setError] = useState<string | null>(null);
-
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
-  }
-
   return (
     <Card
       isBlurred
@@ -83,18 +76,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <>
                   <RequestStockButton
                     product={{
-                      productId: product.id,
-                      productName: product.name,
-                      productQty: 1,
+                      id: product.id,
+                      name: product.name,
+                      qty: 1,
                     }}
                   />
 
                   <StockCartButton
                     product={{
-                      productId: product.id,
-                      productName: product.name,
-                      productPrice: product.price,
-                      productQty: 1,
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      qty: 1,
                     }}
                   />
                 </>
@@ -104,18 +97,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <>
                   <StockCartButton
                     product={{
-                      productId: product.id,
-                      productName: product.name,
-                      productPrice: product.price,
-                      productQty: 1,
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      qty: 1,
                     }}
                   />
                   <CartButton
                     product={{
-                      productId: product.id,
-                      productName: product.name,
-                      productPrice: product.price,
-                      productQty: 1,
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      qty: 1,
                     }}
                   />
                 </>
