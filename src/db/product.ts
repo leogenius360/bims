@@ -1,6 +1,6 @@
 import { db } from '@/config/firebase-config';
 import { doc, setDoc, getDoc, updateDoc, getDocs, collection, deleteDoc } from 'firebase/firestore';
-import { PaymentProps, PaymentStatus, SalesProductProps, SalesProps, TransactionVerification } from './sales';
+import { PaymentProps, PaymentStatus, Sales, SalesProductProps, SalesProps, TransactionVerification } from './sales';
 import { BaseUser } from '@/types/db';
 import { StockRequestProduct } from '@/stock-request/provider';
 import { isAdminUser } from '@/auth/utils';
@@ -80,6 +80,54 @@ export class Product {
         return products;
     }
 
+    async getPendingStocks(): Promise<StockRequestProduct[]> {
+        const pendingProducts: StockRequestProduct[] = [];
+
+        try {
+            // Fetch all stock requests
+            const allRequests = await StockRequest.getAll();
+
+            // Filter through the requests to find those that are fully verified
+            for (const request of allRequests) {
+                if (request.isVerified()) {
+                    // Filter the products in the request to find those matching this product's ID
+                    const matchingProducts = request.products.filter((product) => product.id === this.id);
+
+                    // Add the matching products to the pending products list
+                    pendingProducts.push(...matchingProducts);
+                }
+            }
+        } catch (e) {
+            throw e
+        }
+
+        return pendingProducts;
+    }
+
+    async getPendingDelivery(): Promise<SalesProductProps[]> {
+        const pendingDelivery: SalesProductProps[] = [];
+
+        try {
+            // Fetch all stock requests
+            const allSales = await Sales.getAll();
+
+            // Filter through the requests to find those that are fully verified
+            for (const sales of allSales) {
+                if (sales.isVerified()) {
+                    // Filter the products in the sales to find those matching this product's ID
+                    const matchingProducts = sales.products.filter((product) => product.id === this.id);
+
+                    // Add the matching products to the pending delivery list
+                    pendingDelivery.push(...matchingProducts);
+                }
+            }
+        } catch (e) {
+            throw e
+        }
+
+        return pendingDelivery;
+    }
+
     async save(): Promise<void> {
         const docRef = doc(db, 'Products', this.id);
         await setDoc(docRef, {
@@ -130,7 +178,18 @@ export class Product {
 export interface StockProductProps extends SalesProductProps { }
 
 
-export interface StockProps extends SalesProps { }
+export interface StockProps extends SalesProps {
+
+    supplier: SupplierProps
+}
+
+
+export interface SupplierProps {
+    name: string;
+    email?: string;
+    contact?: string;
+    address?: string
+}
 
 
 export class Stock {
@@ -139,16 +198,18 @@ export class Stock {
     payment?: PaymentProps;
     expenses: number
     description: string;
+    supplier: SupplierProps
 
     verifications: TransactionVerification[]
     processedBy: string
     date: Date
 
-    constructor({ description, products, payment, expenses }: StockProps, authUser?: BaseUser) {
+    constructor({ description, products, payment, expenses, supplier }: StockProps, authUser?: BaseUser) {
         this.id = ""
         this.products = products
         this.payment = payment;
         this.expenses = expenses
+        this.supplier = supplier
         this.description = description
         this.verifications = []
         this.processedBy = authUser?.displayName ? authUser.displayName : authUser?.email ? authUser.email : "undefined";
@@ -173,6 +234,7 @@ export class Stock {
                 products: data.products,
                 payment: data.payment,
                 expenses: data.expenses,
+                supplier: data.supplier,
                 description: data.description,
                 verifications: data.verifications,
                 processedBy: data.processedBy
@@ -194,6 +256,7 @@ export class Stock {
                 products: data.products,
                 payment: data.payment,
                 expenses: data.expenses,
+                supplier: data.supplier,
                 description: data.description,
                 verifications: data.verifications,
                 processedBy: data.processedBy
@@ -219,6 +282,7 @@ export class Stock {
             products: this.products,
             payment: this.payment,
             expenses: this.expenses,
+            supplier: this.supplier,
             description: this.description,
             verifications: this.verifications,
             processedBy: this.processedBy,
@@ -255,17 +319,13 @@ export class Stock {
             console.warn("User has already verified this stock.");
             return;
         }
+        if (this.verifications.every((v) => v.user.email !== user.email)) {
+            this.verifications.push({ user: user, isVerified: true });
+            return await updateDoc(docRef, { verifications: this.verifications });
+        }
         this.verifications.push({ user: user, isVerified: true });
         await updateDoc(docRef, { verifications: this.verifications });
     }
-}
-
-
-export interface SupplierProps {
-    name: string;
-    email?: string;
-    contact?: string;
-    address?: string
 }
 
 export interface StockRequestProps {

@@ -39,10 +39,6 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
     fetchProductImage();
   }, [id]);
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
-
   return (
     <Card
       className={twMerge(
@@ -55,7 +51,7 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
       <CardBody>
         <div className="grid h-full w-full grid-cols-6 items-center justify-center gap-6 md:grid-cols-12 md:gap-4">
           <div className="relative col-span-6 md:col-span-4">
-            {imageUrl && (
+            {imageUrl ? (
               <Image
                 alt="Product image"
                 className="max-h-32 object-cover"
@@ -65,6 +61,8 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({
                 shadow="md"
                 src={imageUrl}
               />
+            ) : (
+              <span className="text-center text-red-500">{error}</span>
             )}
           </div>
 
@@ -139,10 +137,6 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
     fetchProductImage();
   }, [id]);
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
-
   return (
     <Card
       className={twMerge(
@@ -155,7 +149,7 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
       <CardBody>
         <div className="grid h-full w-full grid-cols-6 items-center justify-center gap-6 md:grid-cols-12 md:gap-4">
           <div className="relative col-span-6 overflow-hidden md:col-span-4">
-            {imageUrl && (
+            {imageUrl ? (
               <Image
                 alt="Product image"
                 className="max-h-32 object-cover"
@@ -165,6 +159,8 @@ export const StockCartProductCard: React.FC<CartProductCardProps> = ({
                 shadow="md"
                 src={imageUrl}
               />
+            ) : (
+              <span className="text-center text-red-500">{error}</span>
             )}
           </div>
 

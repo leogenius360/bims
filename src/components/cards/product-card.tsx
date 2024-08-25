@@ -14,11 +14,13 @@ interface ProductCardProps {
   className?: string;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard: React.FC<ProductCardProps> = async ({
   user,
   product,
   className,
 }) => {
+  const pendingProducts = await product.getPendingStocks();
+  const pendingDelivery = await product.getPendingDelivery();
   return (
     <Card
       isBlurred
@@ -56,16 +58,36 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
             <div>
               <small className="inline-flex w-full items-center justify-between font-semibold text-foreground/80">
-                Stock:
-                <span className="text-emerald-400">{product.stock?.qty}</span>
-                <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
-                <span className="text-red-500">
-                  -{product.stock?.outgoing} out
+                <span>
+                  Stock:{" "}
+                  <span className="text-emerald-400">{product.stock?.qty}</span>
                 </span>
-                <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
-                <span className="text-emerald-500">
-                  +{product.stock?.incoming} next
-                </span>
+                {pendingDelivery && (
+                  <>
+                    <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
+                    <span className="text-red-500">
+                      -
+                      {pendingDelivery.reduce(
+                        (prevQty, current) => prevQty + current.qty,
+                        0,
+                      )}{" "}
+                      out
+                    </span>
+                  </>
+                )}
+                {pendingProducts && (
+                  <>
+                    <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
+                    <span className="text-emerald-500">
+                      +
+                      {pendingProducts.reduce(
+                        (prevQty, current) => prevQty + current.qty,
+                        0,
+                      )}{" "}
+                      next
+                    </span>
+                  </>
+                )}
               </small>
             </div>
 

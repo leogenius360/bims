@@ -13,22 +13,11 @@ import { firebaseConfig } from "@/config/firebase-config";
 import { CartProvider } from "@/cart/provider";
 import { StockCartProvider } from "@/stock/provider";
 import { StockRequestProvider } from "@/stock-request/provider";
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  useDisclosure,
-} from "@nextui-org/react";
+import { useDisclosure } from "@nextui-org/react";
 import { UpdateCartForm, UpdateStockCartForm } from "@/components/forms/cart";
 import { NewProductCategoryForm } from "@/components/forms/new-category-form";
 import { NewProductForm } from "@/components/forms/products";
 import { StockForm } from "@/components/forms/stock-form";
-import { Divider } from "@/components";
-import { StockProps } from "@/db/product";
 
 export function Providers({ children, ...themeProps }: ThemeProviderProps) {
   const router = useRouter();
@@ -53,9 +42,9 @@ export function Providers({ children, ...themeProps }: ThemeProviderProps) {
 
                 <NewProductForm />
                 <UpdateCartForm />
-                <UpdateStockCartForm newStockModal={newStockModal} />
                 <NewProductCategoryForm />
                 <StockForm newStockModal={newStockModal} />
+                <UpdateStockCartForm newStockModal={newStockModal} />
               </CartProvider>
             </StockCartProvider>
           </StockRequestProvider>
