@@ -113,7 +113,7 @@ export class Product {
 
             // Filter through the requests to find those that are fully verified
             for (const sales of allSales) {
-                if (sales.isVerified()) {
+                if (sales.isPending()) {
                     // Filter the products in the sales to find those matching this product's ID
                     const matchingProducts = sales.products.filter((product) => product.id === this.id);
 
@@ -137,8 +137,8 @@ export class Product {
             // inventoryMethod: this.inventoryMethod,
             imageUrl: this.imageUrl,
             category: this.category,
-            description: this.description,
-            latestUpdateBy: this.latestUpdateBy,
+            description: this.description || "",
+            latestUpdateBy: this.latestUpdateBy || "",
             latestUpdateDate: new Date()
         });
     }
@@ -178,8 +178,11 @@ export class Product {
 export interface StockProductProps extends SalesProductProps { }
 
 
-export interface StockProps extends SalesProps {
-
+export interface StockProps {
+    products: SalesProductProps[];
+    payment?: PaymentProps
+    expenses?: number;
+    description: string;
     supplier: SupplierProps
 }
 
@@ -196,7 +199,7 @@ export class Stock {
     id: string;
     products: StockProductProps[];
     payment?: PaymentProps;
-    expenses: number
+    expenses?: number
     description: string;
     supplier: SupplierProps
 
@@ -280,8 +283,8 @@ export class Stock {
         await setDoc(docRef, {
             id: this.id,
             products: this.products,
-            payment: this.payment,
-            expenses: this.expenses,
+            payment: this.payment || {},
+            expenses: this.expenses || 0,
             supplier: this.supplier,
             description: this.description,
             verifications: this.verifications,

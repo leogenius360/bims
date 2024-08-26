@@ -7,6 +7,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Input,
   UseDisclosureProps,
 } from "@nextui-org/react";
 import { TiFilter } from "react-icons/ti";
@@ -42,8 +43,8 @@ export const HomePageHeader = ({
   const { stockCart } = useStockCart();
   const { stockRequests } = useStockRequests();
   return (
-    <section className="flex flex-wrap items-center justify-center gap-3 px-3 py-3 sm:justify-between md:px-6 md:py-4">
-      <div className="flex items-center gap-3">
+    <section className="flex flex-wrap items-center justify-center gap-3 px-3 py-3 md:px-6 md:py-4">
+      <div className="me-auto flex items-center gap-3">
         <Dropdown>
           <DropdownTrigger>
             <Button
@@ -52,7 +53,7 @@ export const HomePageHeader = ({
               radius="sm"
               size="sm"
               startContent={<TiFilter size={22} className="text-emerald-500" />}
-              className="font-bold capitalize dark:text-white"
+              className="w-full min-w-40 font-bold dark:text-white"
             >
               {selectedValue ? selectedValue : "Filter products"}
             </Button>
@@ -64,7 +65,6 @@ export const HomePageHeader = ({
             selectionMode="multiple"
             selectedKeys={selectedKeys}
             onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
-            className="w-full"
           >
             {categories.map((key) => (
               <DropdownItem key={key} className="capitalize">
@@ -74,16 +74,23 @@ export const HomePageHeader = ({
           </DropdownMenu>
         </Dropdown>
 
-        <div className="flex h-8 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 hover:border-emerald-500">
-          <input
-            type="text"
-            value={searchValue}
-            onChange={onSearchEnter}
-            placeholder="Search products..."
-            className="h-full w-full border-none bg-transparent py-1 outline-none"
-          />
-          <TbFilterSearch size={20} className="text-emerald-500" />
-        </div>
+        <Input
+          type="text"
+          value={searchValue}
+          onChange={onSearchEnter}
+          placeholder="Search products..."
+          size="sm"
+          radius="sm"
+          color="primary"
+          variant="bordered"
+          endContent={<TbFilterSearch size={20} className="text-emerald-500" />}
+          className=" min-w-52"
+          classNames={{
+            mainWrapper: "w-full",
+            inputWrapper:
+              "border-emerald-700 data-[hover=true]:border-primary font-bold",
+          }}
+        />
       </div>
 
       <div className="flex items-center gap-3">

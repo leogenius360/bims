@@ -12,10 +12,10 @@ import Link from "next/link";
 import { internalUrls } from "@/config/site-config";
 
 interface CartFormProps {
-  newSalesModal?: UseDisclosureProps;
+  salesModal?: UseDisclosureProps;
 }
 
-export const UpdateCartForm = ({ newSalesModal }: CartFormProps) => {
+export const UpdateCartForm = ({ salesModal }: CartFormProps) => {
   const { cart, getTotalCost, removeProduct } = useCart();
 
   return (
@@ -57,14 +57,14 @@ export const UpdateCartForm = ({ newSalesModal }: CartFormProps) => {
         {cart.length > 0 ? (
           <div className="flex gap-3">
             <Button
-              aria-label="Close"
-              data-bs-dismiss="offcanvas"
               variant="ghost"
               color="primary"
               radius="none"
               className="w-full rounded font-bold"
+              onPress={salesModal?.onOpen}
+              data-bs-dismiss="offcanvas"
             >
-              Add more products
+              Proceed to checkout
             </Button>
             <Button
               aria-label="Close"
@@ -73,9 +73,8 @@ export const UpdateCartForm = ({ newSalesModal }: CartFormProps) => {
               color="primary"
               radius="none"
               className="w-full rounded font-bold"
-              onPress={newSalesModal?.onOpen}
             >
-              Proceed to checkout
+              Add more products
             </Button>
           </div>
         ) : (
@@ -146,10 +145,10 @@ export const UpdateStockCartForm = ({ newStockModal }: StockCartFormProps) => {
               color="primary"
               className="w-full rounded font-bold"
               radius="none"
+              onPress={newStockModal?.onOpen}
               data-bs-dismiss="offcanvas"
-              aria-label="Close"
             >
-              Add more stock
+              Save and proceed
             </Button>
 
             <Button
@@ -157,11 +156,10 @@ export const UpdateStockCartForm = ({ newStockModal }: StockCartFormProps) => {
               color="primary"
               className="w-full rounded font-bold"
               radius="none"
-              onPress={newStockModal?.onOpen}
               data-bs-dismiss="offcanvas"
               aria-label="Close"
             >
-              Save and proceed
+              Add more stock
             </Button>
           </div>
         ) : (

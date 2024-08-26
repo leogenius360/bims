@@ -18,10 +18,12 @@ import { UpdateCartForm, UpdateStockCartForm } from "@/components/forms/cart";
 import { NewProductCategoryForm } from "@/components/forms/new-category-form";
 import { NewProductForm } from "@/components/forms/products";
 import { StockForm } from "@/components/forms/stock-form";
+import { SalesForm } from "@/components/forms/sales-form";
 
 export function Providers({ children, ...themeProps }: ThemeProviderProps) {
   const router = useRouter();
   const newStockModal = useDisclosure();
+  const salesModal = useDisclosure();
 
   useEffect(() => {
     require("bootstrap/dist/js/bootstrap.bundle.min");
@@ -41,8 +43,10 @@ export function Providers({ children, ...themeProps }: ThemeProviderProps) {
                 {children}
 
                 <NewProductForm />
-                <UpdateCartForm />
                 <NewProductCategoryForm />
+                <SalesForm salesModal={salesModal} />
+                <UpdateCartForm salesModal={salesModal} />
+
                 <StockForm newStockModal={newStockModal} />
                 <UpdateStockCartForm newStockModal={newStockModal} />
               </CartProvider>

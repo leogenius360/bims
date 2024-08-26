@@ -7,14 +7,14 @@ export class ProductCategory {
     addedBy: string
 
     constructor({ label, addedBy }: {label: string, addedBy:string}) {
-        this.id = `products::category:${label.toLowerCase()}`
+        this.id = `product::category:${label.toLowerCase()}`
         this.label = label
         this.addedBy = addedBy
     }
 
     
     static async get(id: string): Promise<ProductCategory | null> {
-        const docRef = doc(db, 'Product Category', id);
+        const docRef = doc(db, 'Product Categories', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
@@ -27,7 +27,7 @@ export class ProductCategory {
     }
 
     static async getAll(): Promise<ProductCategory[]> {
-        const querySnapshot = await getDocs(collection(db, 'Product Category'));
+        const querySnapshot = await getDocs(collection(db, 'Product Categories'));
         const categories: ProductCategory[] = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
@@ -39,7 +39,7 @@ export class ProductCategory {
     }
 
     async save(): Promise<void> {
-        const docRef = doc(db, 'Product Category', this.id);
+        const docRef = doc(db, 'Product Categories', this.id);
         await setDoc(docRef, {
             label: this.label,
             addedBy: this.addedBy,
@@ -47,12 +47,12 @@ export class ProductCategory {
     }
 
     async update(data: Partial<ProductCategory>): Promise<void> {
-        const docRef = doc(db, 'Product Category', this.id);
+        const docRef = doc(db, 'Product Categories', this.id);
         await updateDoc(docRef, { ...data });
     }
 
     static async delete(id: string): Promise<void> {
-        const docRef = doc(db, 'Product Category', id);
+        const docRef = doc(db, 'Product Categories', id);
         await deleteDoc(docRef);
     }
 }

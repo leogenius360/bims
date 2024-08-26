@@ -3,39 +3,15 @@
 import { useAuth, withLoginRequired } from "@/auth/provider";
 import { isAdminUser, isSalesUser } from "@/auth/utils";
 import { support, internalUrls } from "@/config/site-config";
+import { Product } from "@/db/product";
 import { Button } from "@nextui-org/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import DataTable, {
   createTheme,
   defaultThemes,
   TableStyles,
 } from "react-data-table-component";
-
-const data = [
-  {
-    id: 1,
-    title: "Beetlejuice",
-    year: "1988",
-  },
-  {
-    id: 2,
-    title: "Ghostbusters",
-    year: "1984",
-  },
-];
-
-const columns1 = [
-  {
-    name: "Title",
-    selector: (row: { title: any }) => row.title,
-    sortable: true,
-  },
-  {
-    name: "Year",
-    selector: (row: { year: any }) => row.year,
-    sortable: true,
-  },
-];
 
 const customStyles: TableStyles = {
   header: {
@@ -59,9 +35,60 @@ const customStyles: TableStyles = {
   },
 };
 
-
 const ProductsPage = () => {
   const { user } = useAuth();
+  const [products, setProducts] = useState<Product[] | null>(null);
+
+  const tableColumns = [
+    {
+      name: "Latest Update",
+      selector: (row: { latestUpdateDate?: Date }) =>
+        row.latestUpdateDate?.toUTCString() || "",
+      sortable: true,
+    },
+    {
+      name: "Image",
+      selector: (row: { imageUrl: string }) => row.imageUrl,
+      // sortable: true,
+    },
+    {
+      name: "Name",
+      selector: (row: { name: string }) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Price",
+      selector: (row: { price: number }) => row.price,
+      sortable: true,
+    },
+    {
+      name: "Stock",
+      selector: (row: { stock: any }) => row.stock.qty,
+      sortable: true,
+    },
+    {
+      name: "Category",
+      selector: (row: { category: string }) => row.category,
+      sortable: true,
+    },
+    {
+      name: "latest update by",
+      selector: (row: { latestUpdateBy?: string }) => row.latestUpdateBy || "",
+      sortable: true,
+    },
+  ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await Product.getAll();
+        setProducts(data);
+      } catch (e) {
+        throw e;
+      }
+    };
+    fetchData();
+  });
 
   if (!user || (!isAdminUser(user!) && !isSalesUser(user))) {
     return (
@@ -99,9 +126,9 @@ const ProductsPage = () => {
       <div className="card w-full overflow-hidden rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default">
         <DataTable
           title={Header}
-          columns={columns1}
-          data={data}
-          responsive
+          columns={tableColumns}
+          data={products || []}
+          // responsive
           striped
           highlightOnHover
           defaultSortFieldId={1}
@@ -112,7 +139,7 @@ const ProductsPage = () => {
           fixedHeader
           fixedHeaderScrollHeight="80vh"
           className="rounded-none"
-          customStyles={customStyles}
+          // customStyles={customStyles}h
         />
       </div>
     </section>

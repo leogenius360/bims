@@ -34,7 +34,6 @@ export const StockForm = ({ newStockModal }: StockFormProps) => {
   const [formData, setFormData] = useState<StockProps>({
     products: stockCart,
     payment: {},
-    expenses: 0,
     supplier: { name: "" },
     description: "",
   });
@@ -122,7 +121,6 @@ export const StockForm = ({ newStockModal }: StockFormProps) => {
       setFormData({
         products: stockCart,
         payment: {},
-        expenses: 0,
         supplier: { name: "" },
         description: "",
       });
@@ -206,7 +204,7 @@ export const StockForm = ({ newStockModal }: StockFormProps) => {
                         color="primary"
                         variant="bordered"
                         name="expenses"
-                        value={formData.expenses.toString()}
+                        value={formData.expenses?.toString()}
                         onChange={handleInputChange}
                         classNames={{
                           mainWrapper: "mt-3",

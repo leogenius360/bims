@@ -62,32 +62,32 @@ export const ProductCard: React.FC<ProductCardProps> = async ({
                   Stock:{" "}
                   <span className="text-emerald-400">{product.stock?.qty}</span>
                 </span>
-                {pendingDelivery && (
-                  <>
-                    <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
-                    <span className="text-red-500">
-                      -
-                      {pendingDelivery.reduce(
-                        (prevQty, current) => prevQty + current.qty,
-                        0,
-                      )}{" "}
-                      out
-                    </span>
-                  </>
+                {/* {pendingDelivery.length > 0 && (
+                  <> */}
+                <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
+                <span className="text-red-500">
+                  -{" "}
+                  {pendingDelivery.reduce(
+                    (prevQty, current) => prevQty + current.qty,
+                    0,
+                  )}{" "}
+                  out
+                </span>
+                {/* </>
                 )}
-                {pendingProducts && (
-                  <>
-                    <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
-                    <span className="text-emerald-500">
-                      +
-                      {pendingProducts.reduce(
-                        (prevQty, current) => prevQty + current.qty,
-                        0,
-                      )}{" "}
-                      next
-                    </span>
-                  </>
-                )}
+                {pendingProducts.length > 0 && (
+                  <> */}
+                <FiGitCommit size={18} className="-mb-0.5 px-0.5" />
+                <span className="text-emerald-500">
+                  +{" "}
+                  {pendingProducts.reduce(
+                    (prevQty, current) => prevQty + current.qty,
+                    0,
+                  )}{" "}
+                  next
+                </span>
+                {/* </>
+                )} */}
               </small>
             </div>
 

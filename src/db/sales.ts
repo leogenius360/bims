@@ -26,11 +26,27 @@ export interface PaymentProps {
     balance?: number;
     status?: PaymentStatus;
 }
+export interface DeliveryProps {
+    user?: BaseUser;
+    status?: string | "instant take off" | "delivered" | "delivering" | "pending";
+    date?: Date
+}
+
+
+export interface CustomerProps {
+    name: string;
+    email?: string;
+    contact?: string;
+    address?: string
+}
+
 
 export interface SalesProps {
     products: SalesProductProps[];
     payment?: PaymentProps
-    expenses: number;
+    expenses?: number;
+    customer: CustomerProps;
+    delivery?: DeliveryProps;
     description: string;
 }
 
@@ -38,18 +54,22 @@ export class Sales {
     id: string;
     products: SalesProductProps[];
     payment?: PaymentProps;
-    expenses: number
+    expenses?: number
+    customer: CustomerProps;
+    delivery?: DeliveryProps;
     description: string;
 
     verifications: TransactionVerification[]
     processedBy: string
     date: Date
 
-    constructor({ description, products, payment, expenses }: SalesProps, authUser?: BaseUser) {
+    constructor({ description, products, payment, expenses, customer, delivery }: SalesProps, authUser?: BaseUser) {
         this.id = ""
         this.products = products
         this.payment = payment;
         this.expenses = expenses
+        this.customer = customer
+        this.delivery = delivery
         this.description = description
         this.verifications = []
         this.processedBy = authUser?.displayName ? authUser.displayName : authUser?.email ? authUser.email : "undefined";
@@ -64,6 +84,10 @@ export class Sales {
         return this.verifications.every((verification) => verification.isVerified);
     };
 
+    isPending = () => {
+        return this.delivery?.status === "pending" || !this.isVerified
+    }
+
 
     static async get(id: string): Promise<Sales | null> {
         const docRef = doc(db, 'Sales', id);
@@ -75,6 +99,8 @@ export class Sales {
                 products: data.products,
                 payment: data.payment,
                 expenses: data.expenses,
+                customer: data.customer,
+                delivery: data.delivery,
                 verifications: data.verifications,
                 processedBy: data.processedBy
             } as SalesProps);
@@ -96,6 +122,8 @@ export class Sales {
                 products: data.products,
                 payment: data.payment,
                 expenses: data.expenses,
+                customer: data.customer,
+                delivery: data.delivery,
                 verifications: data.verifications,
                 processedBy: data.processedBy
             } as SalesProps);
@@ -111,7 +139,7 @@ export class Sales {
         for (const product of this.products) {
             const p = await Product.get(product.id);
             if (p) {
-                await p.updateStock({qty: product.qty, isSales:true});
+                await p.updateStock({ qty: product.qty, isSales: true });
             } else throw Error(`Product ${product.name} does not exist in products`) // else remove the product `p` from the sales products
         }
         const docRef = doc(db, 'Sales', this.id);
@@ -119,8 +147,10 @@ export class Sales {
             id: this.id,
             description: this.description,
             products: this.products,
-            payment: this.payment,
-            expenses: this.expenses,
+            payment: this.payment || {},
+            expenses: this.expenses || 0,
+            customer: this.customer,
+            delivery: this.delivery || {},
             verifications: this.verifications,
             processedBy: this.processedBy,
             date: new Date()
@@ -136,6 +166,13 @@ export class Sales {
             'payment.amountPaid': currentAmount,
             'payment.balance': totalPrice - currentAmount,
             'payment.status': currentAmount >= totalPrice ? PaymentStatus.FullPayment : PaymentStatus.PartPayment,
+        });
+    }
+
+    async updateDelivery(delivery: DeliveryProps): Promise<void> {
+        const docRef = doc(db, 'Sales', this.id);
+        await updateDoc(docRef, {
+            delivery: delivery
         });
     }
 
