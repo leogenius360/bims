@@ -341,6 +341,7 @@ export class StockRequest {
     products: StockRequestProduct[];
     supplier?: SupplierProps;
 
+    pending: boolean
     verifications: TransactionVerification[]
     processedBy: string
     date!: Date
@@ -349,6 +350,7 @@ export class StockRequest {
         this.id = ""
         this.products = products
         this.supplier = supplier;
+        this.pending = isAdminUser(authUser as User)
         this.verifications = isAdminUser(authUser as User) ? [{ user: authUser as User, isVerified: true }] : []
         this.processedBy = authUser?.displayName ? authUser.displayName : authUser?.email ? authUser.email : "undefined";
         // this.date = new Date()
@@ -368,7 +370,8 @@ export class StockRequest {
                 products: data.products,
                 supplier: data.supplier,
             });
-            req.verifications = data.verifications,
+            req.pending = data.pending,
+                req.verifications = data.verifications,
                 req.processedBy = data.processedBy
             req.id = data.id;
             req.date = data.date;
@@ -387,6 +390,7 @@ export class StockRequest {
                 products: data.products,
                 supplier: data.supplier,
             });
+            req.pending = data.pending,
             req.verifications = data.verifications,
                 req.processedBy = data.processedBy
             req.id = data.id;
@@ -413,6 +417,7 @@ export class StockRequest {
             id: this.id,
             products: this.products,
             supplier: this.supplier,
+            pending: this.pending,
             verifications: serializedVerifications,
             processedBy: this.processedBy,
             date: new Date()
