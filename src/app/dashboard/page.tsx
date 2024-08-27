@@ -1,70 +1,81 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Image } from "@nextui-org/react";
 import { CurrentStockTable, InStock } from "@/components/tables";
 import { useAuth, withLoginRequired } from "@/auth/provider";
-import { isAdminUser, isDeliveryUser, isSalesUser } from "@/auth/utils";
 import { Sales } from "@/db/sales";
 import { Stock, StockRequest } from "@/db/product";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  getKeyValue,
+} from "@nextui-org/react";
 
 const AdminPageWraper = ({ children }: { children: ReactNode }) => {
   return <section className="inline-block w-full px-3">{children}</section>;
 };
 
 const Dashboard = () => {
+  const [salesData, setSalesData] = useState<Sales[]>([]);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
   const [salesExpenses, setSalesExpenses] = useState<number>(0);
   const [totalSales, setTotalSales] = useState<number>(0);
   const [pendingDeliveries, setPendingDeliveries] = useState<number>(0);
 
+  const [stockData, setStockData] = useState<Stock[]>([]);
   const [totalExpenses, setTotalExpenses] = useState<number>(0);
   const [totalStock, setTotalStock] = useState<number>(0);
   const [pendingStockPayment, setPendingStockPayment] = useState<number>(0);
   const [pendingStock, setPendingStock] = useState<number>(0);
 
+  const [stockRequestData, setStockRequestData] = useState<StockRequest[]>([]);
   const [totalRequests, setTotalRequests] = useState<number>(0);
   const [pendingRequests, setPendingRequests] = useState<number>(0);
   const [verifiedRequests, setVerifiedRequests] = useState<number>(0);
 
   useEffect(() => {
     const fetchSalesStats = async () => {
-      const salesData = await Sales.getAll();
-      const revenue = salesData.reduce(
+      const sales = await Sales.getAll();
+      setSalesData(sales);
+      const revenue = sales.reduce(
         (acc, sale) => acc + (sale.payment?.amountPaid || 0),
         0,
       );
-      const expenses = salesData.reduce(
+      const expenses = sales.reduce(
         (acc, sale) => acc + (sale.expenses || 0),
         0,
       );
-      const pending = salesData.filter((sale) => sale.isPending()).length;
-      const verified = salesData.filter((sale) => sale.isVerified()).length;
+      const pending = sales.filter((sale) => sale.isPending()).length;
+      // const verified = salesData.filter((sale) => sale.isVerified()).length;
 
       setTotalRevenue(revenue);
       setSalesExpenses(expenses);
-      setTotalSales(salesData.length);
+      setTotalSales(sales.length);
       setPendingDeliveries(pending);
     };
 
     const fetchStockStats = async () => {
-      const stockData = await Stock.getAll();
-      const expenses = stockData.reduce(
+      const stocks = await Stock.getAll();
+      setStockData(stocks);
+      const expenses = stocks.reduce(
         (exp, stock) => exp + (stock.expenses || 0),
         0,
       );
-      const totalStockQty = stockData.reduce(
+      const totalStockQty = stocks.reduce(
         (acc, stock) =>
           acc + stock.products.reduce((sum, product) => sum + product.qty, 0),
         0,
       );
-      const pending = stockData.filter((stock) =>
+      const pending = stocks.filter((stock) =>
         stock.payment?.status
           ? !stock.payment?.status.includes("FullPayment")
           : false,
       ).length;
-      const verified = stockData.filter((stock) => !stock.isVerified()).length;
+      const verified = stocks.filter((stock) => !stock.isVerified()).length;
 
       setTotalExpenses(expenses);
       setTotalStock(totalStockQty);
@@ -73,12 +84,11 @@ const Dashboard = () => {
     };
 
     const fetchStockRequestStats = async () => {
-      const stockRequestData = await StockRequest.getAll();
-      const total = stockRequestData.length;
-      const pending = stockRequestData.filter((req) => req.pending).length;
-      const verified = stockRequestData.filter((req) =>
-        req.isVerified(),
-      ).length;
+      const stockRequests = await StockRequest.getAll();
+      setStockRequestData(stockRequests);
+      const total = stockRequests.length;
+      const pending = stockRequests.filter((req) => req.pending).length;
+      const verified = stockRequests.filter((req) => req.isVerified()).length;
 
       setTotalRequests(total);
       setPendingRequests(pending);
@@ -90,9 +100,47 @@ const Dashboard = () => {
     fetchStockRequestStats();
   }, []);
 
+  const salesTableColumns = [
+    {
+      key: "id",
+      label: "ID",
+    },
+    {
+      key: "getTotalPrice",
+      label: "TOTAL COST",
+    },
+    {
+      key: ["payment", "amountPaid"],
+      label: "PAYMENT",
+    },
+    {
+      key: "expenses",
+      label: "EXPENSES",
+    },
+  ];
+
+  const stockTableColumns = [
+    {
+      key: "id",
+      label: "ID",
+    },
+    {
+      key: "getTotalPrice",
+      label: "TOTAL COST",
+    },
+    {
+      key: ["payment", "amountPaid"],
+      label: "PAYMENT",
+    },
+    {
+      key: "expenses",
+      label: "EXPENSES",
+    },
+  ];
+
   return (
     <AdminPageWraper>
-      <div className="mb-6 flex flex-nowrap justify-between gap-4 md:gap-6">
+      <div className="flex flex-nowrap justify-between gap-4 md:gap-6 px-1">
         {/* Sales Overview Card */}
         <div className="card w-full min-w-64 rounded-md border-2 bg-transparent px-4 shadow-md">
           <h6 className="my-4 text-lg font-bold">Sales Overview</h6>
@@ -208,46 +256,184 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Other components like InStock */}
-      <div className="grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2">
-        <InStock />
-        <InStock />
+      {/* Other components like Stock */}
+      <div className="mb-3 mt-10 grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2">
+        <Table
+          color="primary"
+          radius="sm"
+          selectionMode="single"
+          aria-label="Example table with dynamic content"
+          topContent={<h3 className="font-bold">Recent sales</h3>}
+          // bottomContent={BottomContent}
+          classNames={{
+            wrapper:
+              "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+            base: "",
+            table: "card rounded-md",
+            tbody: "overflow-y-auto h-full max-h-80",
+          }}
+        >
+          <TableHeader columns={salesTableColumns}>
+            {(column) => (
+              <TableColumn key={column.label}>{column.label}</TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            items={salesData}
+            emptyContent={"No sales data to display."}
+            className=" "
+          >
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        <Table
+          color="primary"
+          radius="sm"
+          selectionMode="single"
+          aria-label="Example table with dynamic content"
+          topContent={<h3 className="font-bold">Recent stock</h3>}
+          // bottomContent={BottomContent}
+          classNames={{
+            wrapper:
+              "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+            base: "",
+            table: "card rounded-md",
+            tbody: "overflow-y-auto h-full max-h-80",
+          }}
+        >
+          <TableHeader columns={stockTableColumns}>
+            {(column) => (
+              <TableColumn key={column.label}>{column.label}</TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            items={stockData}
+            emptyContent={"No stock data to display."}
+            className=" "
+          >
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
 
-      <div className="mx-auto my-6 inline-block w-full lg:my-8">
-        <div className="grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2 xl:grid-cols-3">
-          <div className="card w-full rounded-md border-emerald-200 bg-transparent px-5 py-4 shadow-inner drop-shadow-md dark:border-default">
-            <h3 className="py-3 font-bold">Pending in-stock</h3>
+      <div className="mx-auto my-4 inline-block w-full lg:my-6">
+        <Table
+          color="primary"
+          radius="sm"
+          selectionMode="single"
+          aria-label="Example table with dynamic content"
+          topContent={<h3 className="font-bold">Recent transactions</h3>}
+          // bottomContent={BottomContent}
+          classNames={{
+            wrapper:
+              "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+            base: "",
+            table: "rounded-md",
+            tbody: "overflow-y-auto h-full max-h-80",
+          }}
+        >
+          <TableHeader columns={stockTableColumns}>
+            {(column) => (
+              <TableColumn key={column.label}>{column.label}</TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            items={stockData}
+            emptyContent={"No transactions to display."}
+            className=" "
+          >
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <div className="mt-8 grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2 xl:grid-cols-3">
+          <Table
+            color="primary"
+            radius="sm"
+            selectionMode="single"
+            aria-label="Example table with dynamic content"
+            topContent={<h3 className="font-bold">Products out of stock</h3>}
+            // bottomContent={BottomContent}
+            classNames={{
+              wrapper:
+                "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+              base: "",
+              table: "rounded-md",
+              tbody: "overflow-y-auto h-full max-h-80",
+            }}
+          >
+            <TableHeader columns={salesTableColumns}>
+              {(column) => (
+                <TableColumn key={column.label}>{column.label}</TableColumn>
+              )}
+            </TableHeader>
+            <TableBody
+              items={salesData}
+              emptyContent={"No product out of stock."}
+              className=" "
+            >
+              {(item) => (
+                <TableRow key={item.id}>
+                  {(columnKey) => (
+                    <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
 
-            <p>
-              Our office is currently in Wa, Ghana&apos;s Upper West Region,
-              near RST Café and Pet Vero Guest House – Kpaguri residential
-              extension area.
-            </p>
-          </div>
-
-          <div className="card w-full rounded-md border-emerald-200 bg-transparent px-5 py-4 shadow-inner drop-shadow-md dark:border-default">
-            <h3 className="py-3 font-bold">Pending out-stock</h3>
-
-            <p>
-              Brainbox Research Institute (BBRI) is a limited liability
-              corporate research organization founded to promote academic and
-              perhaps educational, community development, and business research
-              activities. Students and research fellows in higher education,
-              development organisations, and corporate/business entities are
-              among our target audiences.
-            </p>
-          </div>
-
-          <div className="card w-full rounded-md border-emerald-200 bg-transparent px-5 py-4 shadow-inner drop-shadow-md dark:border-default">
-            <h3 className="py-3 font-bold">Pending verification</h3>
-
-            <p>
-              Our office is currently in Wa, Ghana&apos;s Upper West Region,
-              near RST Café and Pet Vero Guest House – Kpaguri residential
-              extension area.
-            </p>
-          </div>
+          <Table
+            color="primary"
+            radius="sm"
+            selectionMode="single"
+            aria-label="Example table with dynamic content"
+            topContent={<h3 className="font-bold">Pending stock requests</h3>}
+            // bottomContent={BottomContent}
+            classNames={{
+              wrapper:
+                "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+              base: "",
+              table: "rounded-md",
+              tbody: "overflow-y-auto h-full max-h-80",
+            }}
+          >
+            <TableHeader columns={stockTableColumns}>
+              {(column) => (
+                <TableColumn key={column.label}>{column.label}</TableColumn>
+              )}
+            </TableHeader>
+            <TableBody
+              items={stockData}
+              emptyContent={"No pending stock requests."}
+              className=" "
+            >
+              {(item) => (
+                <TableRow key={item.id}>
+                  {(columnKey) => (
+                    <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </AdminPageWraper>

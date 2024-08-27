@@ -92,6 +92,47 @@ export const InStock = () => {
   );
 };
 
+
+export const DashboardSalesTable = () => {
+  const TopContent = <h3 className="font-bold">Recent in-stock</h3>;
+  const BottomContent = <h3 className="font-bold">Recent in-stock</h3>;
+
+  return (
+    <Table
+      color="primary"
+      radius="sm"
+      selectionMode="single"
+      aria-label="Example table with dynamic content"
+      topContent={TopContent}
+      // bottomContent={BottomContent}
+      classNames={{
+        wrapper:
+          "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+        base: "",
+        table: "card rounded-md",
+        tbody: "overflow-y-auto h-72 max-h-80",
+      }}
+    >
+      <TableHeader columns={columns}>
+        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+      </TableHeader>
+      <TableBody
+        items={rows}
+        emptyContent={"No rows to display."}
+        className=" "
+      >
+        {(item) => (
+          <TableRow key={item.key}>
+            {(columnKey) => (
+              <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+            )}
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
+};
+
 const stockData = [
   {
     hash: "hash-1",
