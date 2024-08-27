@@ -5,9 +5,7 @@ import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { FiX } from "react-icons/fi";
 import clsx from "clsx";
-import {
-  dashboardNavItems,
-} from "@/config/site-config";
+import { dashboardNavItems } from "@/config/site-config";
 import useWindowSize from "@/lib/window_size";
 import DashboardHeader from "@/components/headers/dashboard-header";
 import { useAuth } from "@/auth/provider";
@@ -101,8 +99,12 @@ export default function DashboardLayout({
                       ["shadow-emerald-400 dark:shadow-slate-500"]:
                         item.href === pathname,
                       ["hidden"]:
-                        item.label.toLowerCase() === "transactions" &&
-                        isDeliveryUser(user!),
+                        (["transactions", "stock requests"].includes(
+                          item.label.toLowerCase(),
+                        ) &&
+                          !isAdminUser(user!)) ||
+                        (item.label.toLowerCase() === "sales" &&
+                          isDeliveryUser(user!)),
                     },
                   )}
                 >

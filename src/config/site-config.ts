@@ -16,7 +16,7 @@ export const internalUrls = {
 	sales: '/dashboard/sales',
 	products: '/dashboard/products',
 	transactions: "/dashboard/transactions",
-	approvals: '/dashboard/approvals',
+	stockRequests: '/dashboard/stock-requests',
 	requestStock: "/request-stock",
 	addStock: "/add-stock",
 	checkout: "/checkout",
@@ -37,12 +37,12 @@ export const dashboardNavItems = [
 		href: internalUrls.dashboard,
 	},
 	{
-		label: "Approvals",
-		href: internalUrls.approvals,
-	},
-	{
 		label: "Transactions",
 		href: internalUrls.transactions,
+	},
+	{
+		label: "Stock requests",
+		href: internalUrls.stockRequests,
 	},
 	{
 		label: "Sales",
