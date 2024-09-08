@@ -15,6 +15,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { Product, Stock, StockRequest } from "@/db/product";
 import { Sales } from "@/db/sales";
+import { Transaction } from "@/db/transaction";
 
 interface TableProps<T> {
   maxRow?: number;
@@ -363,7 +364,9 @@ export const SalesTable = ({
   fields,
   filter,
 }: TableProps<Sales>) => {
-  const [sales, setSales] = useState<Sales[] | undefined>(undefined);
+  const [transactions, setTransactions] = useState<Sales[] | undefined>(
+    undefined,
+  );
   const [error, setError] = useState<string | null>(null);
   const TopContent = <h3 className="font-bold">{label ? label : "Sales"} </h3>;
   const BottomContent = <h3 className="font-bold">Recent in stock</h3>;
@@ -372,10 +375,10 @@ export const SalesTable = ({
     const fetchData = async () => {
       try {
         const data = await Sales.getAll();
-        maxRow ? setSales(data.slice(0, maxRow)) : setSales(data);
+        maxRow ? setTransactions(data.slice(0, maxRow)) : setTransactions(data);
       } catch (e) {
         console.error(e);
-        setError("Failed to load sales");
+        setError("Failed to load transactions");
       }
     };
     fetchData();
@@ -385,8 +388,8 @@ export const SalesTable = ({
     return <div>{error}</div>;
   }
 
-  if (!sales) {
-    return <div>Loading sales...</div>;
+  if (!transactions) {
+    return <div>Loading transactions...</div>;
   }
 
   const columns = [
@@ -427,7 +430,7 @@ export const SalesTable = ({
           )}
         </TableHeader>
         <TableBody
-          items={sales}
+          items={transactions}
           emptyContent={"No rows to display."}
           className=" "
         >
@@ -469,6 +472,115 @@ export const SalesTable = ({
                     </div>
                   ) : (
                     getKeyValue(sale, columnKey)
+                  )}
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+export const TransactionsTable = ({
+  maxRow,
+  label,
+  fields,
+  filter,
+}: TableProps<Sales>) => {
+  const [transactions, setTransactions] = useState<Transaction[] | undefined>(
+    undefined,
+  );
+  const [error, setError] = useState<string | null>(null);
+  const TopContent = (
+    <h3 className="font-bold">{label ? label : "Transactions"} </h3>
+  );
+  const BottomContent = <h3 className="font-bold">Recent in stock</h3>;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await Transaction.getAll();
+        maxRow ? setTransactions(data.slice(0, maxRow)) : setTransactions(data);
+      } catch (e) {
+        console.error(e);
+        setError("Failed to load transactions");
+      }
+    };
+    fetchData();
+  }, [maxRow]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!transactions) {
+    return <div>Loading transactions...</div>;
+  }
+
+  const columns = [
+    { key: "timestamp", label: "Timestamp" },
+    { key: "hash", label: "Transaction hash" },
+    { key: "prevHash", label: "Previous hash" },
+    { key: "signer", label: "Signer (User)" },
+    { key: "data", label: "Data" },
+    { key: "actions", label: "Action" },
+  ];
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <Table
+        color="primary"
+        radius="sm"
+        selectionMode="none"
+        aria-label="Transactions table"
+        topContent={TopContent}
+        // bottomContent={BottomContent}
+        classNames={{
+          wrapper:
+            "card h-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+          table: "",
+          tbody: "overflow-y-auto divide-y card rounded-md",
+        }}
+      >
+        <TableHeader
+          columns={
+            fields ? columns.filter((col) => fields.includes(col.key)) : columns
+          }
+        >
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={transactions}
+          emptyContent={"No rows to display."}
+          className=" "
+        >
+          {(trans) => (
+            <TableRow key={trans.hash}>
+              {(columnKey) => (
+                <TableCell>
+                  {columnKey === "timestamp" ? (
+                    trans.timestamp.toDateString()
+                  ) : columnKey === "signer" ? (
+                    trans.signer.displayName || trans.signer.email
+                  ) : columnKey === "data" ? (
+                    <div className="flex flex-wrap gap-1">
+                      {/* {trans.data?.map((product) => (
+                        <Chip
+                          key={product.id}
+                          variant="flat"
+                          size="sm"
+                          radius="sm"
+                        >
+                          {product.name} : {product.qty} @ {product.price}
+                        </Chip>
+                      ))} */}
+                    </div>
+                  ) : (
+                    getKeyValue(trans, columnKey)
                   )}
                 </TableCell>
               )}

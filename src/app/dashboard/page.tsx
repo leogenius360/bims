@@ -6,6 +6,7 @@ import {
   SalesTable,
   StockRequestsTable,
   StocksTable,
+  TransactionsTable,
 } from "@/components/tables";
 import { useAuth, withLoginRequired } from "@/auth/provider";
 import { Sales } from "@/db/sales";
@@ -107,25 +108,6 @@ const Dashboard = () => {
     fetchStockStats();
     fetchStockRequestStats();
   }, []);
-
-  const stockTableColumns = [
-    {
-      key: "id",
-      label: "ID",
-    },
-    {
-      key: "getTotalPrice",
-      label: "TOTAL COST",
-    },
-    {
-      key: ["payment", "amountPaid"],
-      label: "PAYMENT",
-    },
-    {
-      key: "expenses",
-      label: "EXPENSES",
-    },
-  ];
 
   return (
     <AdminPageWraper>
@@ -275,40 +257,7 @@ const Dashboard = () => {
 
       <div className="mx-auto my-4 inline-block w-full lg:my-6">
         {isAdminUser(user) && (
-          <Table
-            color="primary"
-            radius="sm"
-            selectionMode="single"
-            aria-label="Example table with dynamic content"
-            topContent={<h3 className="font-bold">Recent transactions</h3>}
-            // bottomContent={BottomContent}
-            classNames={{
-              wrapper:
-                "card w-full mb-8 rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-              base: "",
-              table: "rounded-md",
-              tbody: "overflow-y-auto h-full max-h-80",
-            }}
-          >
-            <TableHeader columns={stockTableColumns}>
-              {(column) => (
-                <TableColumn key={column.label}>{column.label}</TableColumn>
-              )}
-            </TableHeader>
-            <TableBody
-              items={stockData}
-              emptyContent={"No transactions to display."}
-              className=" "
-            >
-              {(item) => (
-                <TableRow key={item.id}>
-                  {(columnKey) => (
-                    <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+          <TransactionsTable label="Recent transactions" maxRow={15} />
         )}
 
         {isSalesUser(user) && (
