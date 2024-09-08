@@ -12,3 +12,16 @@ export const isSalesUser = (user: User | null) => {
 export const isAdminUser = (user: User | null) => {
   return user? admins.includes(user.email!): false;
 };
+
+export const whichUser = (user: User | null) => {
+  switch (true) {
+    case isAdminUser(user):
+      return "Admin user";
+    case isSalesUser(user):
+      return "Sales user";
+    case isDeliveryUser(user):
+      return "Delivery user";
+    default:
+      return "User";
+  }
+}

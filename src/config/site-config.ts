@@ -37,14 +37,6 @@ export const dashboardNavItems = [
 		href: internalUrls.dashboard,
 	},
 	{
-		label: "Transactions",
-		href: internalUrls.transactions,
-	},
-	{
-		label: "Stock requests",
-		href: internalUrls.stockRequests,
-	},
-	{
 		label: "Sales",
 		href: internalUrls.sales,
 	},
@@ -55,6 +47,14 @@ export const dashboardNavItems = [
 	{
 		label: "Products",
 		href: internalUrls.products,
+	},
+	{
+		label: "Transactions",
+		href: internalUrls.transactions,
+	},
+	{
+		label: "Stock requests",
+		href: internalUrls.stockRequests,
 	},
 ]
 

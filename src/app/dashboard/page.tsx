@@ -1,7 +1,12 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { CurrentStockTable, InStock } from "@/components/tables";
+import {
+  ProductsTable,
+  SalesTable,
+  StockRequestsTable,
+  StocksTable,
+} from "@/components/tables";
 import { useAuth, withLoginRequired } from "@/auth/provider";
 import { Sales } from "@/db/sales";
 import { Stock, StockRequest } from "@/db/product";
@@ -102,25 +107,6 @@ const Dashboard = () => {
     fetchStockStats();
     fetchStockRequestStats();
   }, []);
-
-  const salesTableColumns = [
-    {
-      key: "id",
-      label: "ID",
-    },
-    {
-      key: "getTotalPrice",
-      label: "TOTAL COST",
-    },
-    {
-      key: ["payment", "amountPaid"],
-      label: "PAYMENT",
-    },
-    {
-      key: "expenses",
-      label: "EXPENSES",
-    },
-  ];
 
   const stockTableColumns = [
     {
@@ -264,78 +250,27 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      <div className="mt-6 lg:mt-10">
+        <SalesTable
+          label="Recent sales"
+          maxRow={15}
+          // fields={["date", "customer", "processedBy"]}
+        />
+      </div>
 
       {/* Other components like Stock */}
       <div className="mb-3 mt-10 grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2">
-        <Table
-          color="primary"
-          radius="sm"
-          selectionMode="single"
-          aria-label="Example table with dynamic content"
-          topContent={<h3 className="font-bold">Recent sales</h3>}
-          // bottomContent={BottomContent}
-          classNames={{
-            wrapper:
-              "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-            base: "",
-            table: "card rounded-md",
-            tbody: "overflow-y-auto h-full max-h-80",
-          }}
-        >
-          <TableHeader columns={salesTableColumns}>
-            {(column) => (
-              <TableColumn key={column.label}>{column.label}</TableColumn>
-            )}
-          </TableHeader>
-          <TableBody
-            items={salesData}
-            emptyContent={"No sales data to display."}
-            className=" "
-          >
-            {(item) => (
-              <TableRow key={item.id}>
-                {(columnKey) => (
-                  <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <StocksTable
+          label="Recent stocks"
+          maxRow={5}
+          fields={["date", "supplier", "processedBy"]}
+        />
 
-        <Table
-          color="primary"
-          radius="sm"
-          selectionMode="single"
-          aria-label="Example table with dynamic content"
-          topContent={<h3 className="font-bold">Recent stock</h3>}
-          // bottomContent={BottomContent}
-          classNames={{
-            wrapper:
-              "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-            base: "",
-            table: "card rounded-md",
-            tbody: "overflow-y-auto h-full max-h-80",
-          }}
-        >
-          <TableHeader columns={stockTableColumns}>
-            {(column) => (
-              <TableColumn key={column.label}>{column.label}</TableColumn>
-            )}
-          </TableHeader>
-          <TableBody
-            items={stockData}
-            emptyContent={"No stock data to display."}
-            className=" "
-          >
-            {(item) => (
-              <TableRow key={item.id}>
-                {(columnKey) => (
-                  <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <StockRequestsTable
+          label="Recent stock requests"
+          maxRow={5}
+          fields={["date", "supplier", "processedBy"]}
+        />
       </div>
 
       <div className="mx-auto my-4 inline-block w-full lg:my-6">
@@ -375,118 +310,43 @@ const Dashboard = () => {
             </TableBody>
           </Table>
         )}
-        <div className="grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2 xl:grid-cols-3">
-          {isDeliveryUser(user) && (
-            <Table
-              color="primary"
-              radius="sm"
-              selectionMode="single"
-              aria-label="Example table with dynamic content"
-              topContent={<h3 className="font-bold">Pending delivery</h3>}
-              // bottomContent={BottomContent}
-              classNames={{
-                wrapper:
-                  "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-                base: "",
-                table: "rounded-md",
-                tbody: "overflow-y-auto h-full max-h-80",
-              }}
-            >
-              <TableHeader columns={stockTableColumns}>
-                {(column) => (
-                  <TableColumn key={column.label}>{column.label}</TableColumn>
-                )}
-              </TableHeader>
-              <TableBody
-                items={stockData}
-                emptyContent={"No delivery requests."}
-                className=" "
-              >
-                {(item) => (
-                  <TableRow key={item.id}>
-                    {(columnKey) => (
-                      <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                    )}
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+
+        {isSalesUser(user) && (
+          <ProductsTable
+            label="Resently added products"
+            maxRow={15}
+            // fields={["name", "category", "stock"]}
+          />
+        )}
+
+        {isDeliveryUser(user) && (
+          <SalesTable
+            label="Pending delivery"
+            maxRow={15}
+            // fields={["date", "customer", "processedBy"]}
+          />
+        )}
+        <div className="grid w-full grid-flow-row gap-3 bg-transparent lg:grid-cols-2">
+          <ProductsTable
+            label="Products out of stock"
+            fields={["name", "category", "stock"]}
+          />
+
+          {isAdminUser(user) && (
+            <StockRequestsTable
+              label="Recent stock requests"
+              maxRow={5}
+              fields={["date", "supplier", "processedBy"]}
+            />
           )}
 
-          <Table
-            color="primary"
-            radius="sm"
-            selectionMode="single"
-            aria-label="Example table with dynamic content"
-            topContent={<h3 className="font-bold">Products out of stock</h3>}
-            // bottomContent={BottomContent}
-            classNames={{
-              wrapper:
-                "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-              base: "",
-              table: "rounded-md",
-              tbody: "overflow-y-auto h-full max-h-80",
-            }}
-          >
-            <TableHeader columns={salesTableColumns}>
-              {(column) => (
-                <TableColumn key={column.label}>{column.label}</TableColumn>
-              )}
-            </TableHeader>
-            <TableBody
-              items={salesData}
-              emptyContent={"No product out of stock."}
-              className=" "
-            >
-              {(item) => (
-                <TableRow key={item.id}>
-                  {(columnKey) => (
-                    <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-
-          {isAdminUser(user) ||
-            (isSalesUser(user) && (
-              <Table
-                color="primary"
-                radius="sm"
-                selectionMode="single"
-                aria-label="Example table with dynamic content"
-                topContent={
-                  <h3 className="font-bold">Pending stock requests</h3>
-                }
-                // bottomContent={BottomContent}
-                classNames={{
-                  wrapper:
-                    "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-                  base: "",
-                  table: "rounded-md",
-                  tbody: "overflow-y-auto h-full max-h-80",
-                }}
-              >
-                <TableHeader columns={stockTableColumns}>
-                  {(column) => (
-                    <TableColumn key={column.label}>{column.label}</TableColumn>
-                  )}
-                </TableHeader>
-                <TableBody
-                  items={stockData}
-                  emptyContent={"No pending stock requests."}
-                  className=" "
-                >
-                  {(item) => (
-                    <TableRow key={item.id}>
-                      {(columnKey) => (
-                        <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                      )}
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            ))}
+          {isSalesUser(user) && (
+            <StockRequestsTable
+              label="Recent stock requests"
+              maxRow={5}
+              fields={["date", "supplier", "processedBy"]}
+            />
+          )}
         </div>
       </div>
     </AdminPageWraper>

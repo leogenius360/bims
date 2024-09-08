@@ -76,7 +76,7 @@ export class Sales {
         this.date = new Date()
     }
 
-    async getTotalPrice(): Promise<number> {
+    getTotalPrice(): number {
         return this.products.reduce((total, product) => total + product.price * product.qty, 0);
     }
 
@@ -105,7 +105,7 @@ export class Sales {
                 processedBy: data.processedBy
             } as SalesProps);
             sales.id = data.id;
-            sales.date = data.date;
+            sales.date = data.date.toDate();
             return sales;
         } else {
             return null;
@@ -128,7 +128,7 @@ export class Sales {
                 processedBy: data.processedBy
             } as SalesProps);
             sales.id = data.id;
-            sales.date = data.date;
+            sales.date = data.date.toDate();
             allSales.push(sales);
         });
         return allSales;

@@ -243,7 +243,7 @@ export class Stock {
                 processedBy: data.processedBy
             } as StockProps);
             sales.id = data.id;
-            sales.date = data.date;
+            sales.date = data.date.toDate();
             return sales;
         } else {
             return null;
@@ -265,7 +265,7 @@ export class Stock {
                 processedBy: data.processedBy
             } as StockProps);
             sales.id = data.id;
-            sales.date = data.date;
+            sales.date = data.date.toDate();
             allSales.push(sales);
         });
         return allSales;
@@ -374,7 +374,7 @@ export class StockRequest {
                 req.verifications = data.verifications,
                 req.processedBy = data.processedBy
             req.id = data.id;
-            req.date = data.date;
+            req.date = data.date.toDate();
             return req;
         } else {
             return null;
@@ -391,10 +391,10 @@ export class StockRequest {
                 supplier: data.supplier,
             });
             req.pending = data.pending,
-            req.verifications = data.verifications,
+                req.verifications = data.verifications,
                 req.processedBy = data.processedBy
             req.id = data.id;
-            req.date = data.date;
+            req.date = data.date.toDate();
             allRequest.push(req);
         });
         return allRequest;

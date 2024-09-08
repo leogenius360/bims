@@ -14,7 +14,7 @@ import { ChangeEvent } from "react";
 import clsx from "clsx";
 import { FiChevronRight, FiList, FiMenu, FiPlus, FiX } from "react-icons/fi";
 import { User } from "firebase/auth";
-import { isAdminUser, isDeliveryUser, isSalesUser } from "@/auth/utils";
+import { isAdminUser, isDeliveryUser, isSalesUser, whichUser } from "@/auth/utils";
 import { internalUrls } from "@/config/site-config";
 import { useStockRequests } from "@/stock-request/provider";
 import { useStockCart } from "@/stock/provider";
@@ -56,7 +56,9 @@ const DashboardHeader = ({
           {value ? null : <FiMenu size={22} />}
         </button>
 
-        <Dropdown>
+        <h3 className="font-bold uppercase text-sm">{ whichUser(user)} dashboard</h3>
+
+        {/* <Dropdown>
           <DropdownTrigger>
             <Button
               variant="bordered"
@@ -85,7 +87,7 @@ const DashboardHeader = ({
               </DropdownItem>
             ))}
           </DropdownMenu>
-        </Dropdown>
+        </Dropdown> */}
 
         {/* <div className="flex h-7 min-w-24 flex-nowrap items-center rounded-md border-1 border-emerald-400 px-3 py-1 hover:border-emerald-500">
         <input

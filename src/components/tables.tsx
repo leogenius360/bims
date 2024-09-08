@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Table,
   TableHeader,
@@ -7,410 +8,474 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
+  Button,
+  Chip,
 } from "@nextui-org/react";
 import clsx from "clsx";
+import { useEffect, useState } from "react";
+import { Product, Stock, StockRequest } from "@/db/product";
+import { Sales } from "@/db/sales";
 
-const rows = [
-  {
-    key: "1",
-    name: "Tony Reichert",
-    role: "CEO",
-    status: "Active",
-  },
-  {
-    key: "2",
-    name: "Zoey Lang",
-    role: "Technical Lead",
-    status: "Paused",
-  },
-  {
-    key: "3",
-    name: "Jane Fisher",
-    role: "Senior Developer",
-    status: "Active",
-  },
-  {
-    key: "4",
-    name: "William Howard",
-    role: "Community Manager",
-    status: "Vacation",
-  },
-];
+interface TableProps<T> {
+  maxRow?: number;
+  label?: string;
+  fields?: string[];
+  filter?: (data: T[]) => T[];
+}
 
-const columns = [
-  {
-    key: "name",
-    label: "NAME",
-  },
-  {
-    key: "role",
-    label: "ROLE",
-  },
-  {
-    key: "status",
-    label: "STATUS",
-  },
-];
+export const ProductsTable = ({
+  maxRow,
+  label,
+  fields,
+  filter,
+}: TableProps<Product>) => {
+  const [products, setProducts] = useState<Product[] | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const TopContent = (
+    <h3 className="font-bold">{label ? label : "Product products"} </h3>
+  );
+  const BottomContent = <h3 className="font-bold">Recent in stock</h3>;
 
-export const InStock = () => {
-  const TopContent = <h3 className="font-bold">Recent in-stock</h3>;
-  const BottomContent = <h3 className="font-bold">Recent in-stock</h3>;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await Product.getAll();
+        maxRow ? setProducts(data.slice(0, maxRow)) : setProducts(data);
+      } catch (e) {
+        console.error(e);
+        setError("Failed to load products");
+      }
+    };
+    fetchData();
+  }, [maxRow]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!products) {
+    return <div>Loading products...</div>;
+  }
+
+  const columns = [
+    { key: "date", label: "Lastest update date" },
+    { key: "name", label: "Product Name" },
+    { key: "price", label: "Price" },
+    { key: "category", label: "Category" },
+    { key: "stock", label: "Stock (Qty)" },
+    { key: "latestUpdateBy", label: "Last Updated By" },
+    { key: "actions", label: "Actions" },
+  ];
 
   return (
-    <Table
-      color="primary"
-      radius="sm"
-      selectionMode="single"
-      aria-label="Example table with dynamic content"
-      topContent={TopContent}
-      // bottomContent={BottomContent}
-      classNames={{
-        wrapper:
-          "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-        base: "",
-        table: "card rounded-md",
-        tbody: "overflow-y-auto h-72 max-h-80",
-      }}
-    >
-      <TableHeader columns={columns}>
-        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-      </TableHeader>
-      <TableBody
-        items={rows}
-        emptyContent={"No rows to display."}
-        className=" "
+    <div className="w-full overflow-x-auto">
+      <Table
+        color="primary"
+        radius="sm"
+        selectionMode="none"
+        aria-label="Stocks table"
+        topContent={TopContent}
+        // bottomContent={BottomContent}
+        classNames={{
+          wrapper:
+            "card h-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+          table: "",
+          tbody: "overflow-y-auto divide-y card rounded-md",
+        }}
       >
-        {(item) => (
-          <TableRow key={item.key}>
-            {(columnKey) => (
-              <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        <TableHeader
+          columns={
+            fields ? columns.filter((col) => fields.includes(col.key)) : columns
+          }
+        >
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={products}
+          emptyContent={"No rows to display."}
+          className=" "
+        >
+          {(product) => (
+            <TableRow key={product.id}>
+              {(columnKey) => (
+                <TableCell>
+                  {columnKey === "date" ? (
+                    product.latestUpdateDate?.toDateString()
+                  ) : columnKey === "stock" ? (
+                    product.stock.qty
+                  ) : columnKey === "actions" ? (
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => null}>
+                        View
+                      </Button>
+                      <Button size="sm" color="danger" onClick={() => null}>
+                        Delete
+                      </Button>
+                    </div>
+                  ) : (
+                    getKeyValue(product, columnKey)
+                  )}
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
+export const StocksTable = ({
+  maxRow,
+  label,
+  fields,
+  filter,
+}: TableProps<Stock>) => {
+  const [stocks, setStocks] = useState<Stock[] | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const TopContent = (
+    <h3 className="font-bold">{label ? label : "Recieved stocks"} </h3>
+  );
+  const BottomContent = <h3 className="font-bold">Recent in stock</h3>;
 
-export const DashboardSalesTable = () => {
-  const TopContent = <h3 className="font-bold">Recent in-stock</h3>;
-  const BottomContent = <h3 className="font-bold">Recent in-stock</h3>;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await Stock.getAll();
+        maxRow ? setStocks(data.slice(0, maxRow)) : setStocks(data);
+      } catch (e) {
+        console.error(e);
+        setError("Failed to load stocks");
+      }
+    };
+    fetchData();
+  }, [maxRow]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!stocks) {
+    return <div>Loading stocks...</div>;
+  }
+
+  const columns = [
+    { key: "date", label: "Date" },
+    { key: "supplier", label: "Supplier" },
+    { key: "totalCost", label: "Cost of stock" },
+    { key: "expenses", label: "Expenses" },
+    { key: "payment", label: "Payment" },
+    { key: "processedBy", label: "Processed by" },
+    { key: "actions", label: "Actions" },
+  ];
 
   return (
-    <Table
-      color="primary"
-      radius="sm"
-      selectionMode="single"
-      aria-label="Example table with dynamic content"
-      topContent={TopContent}
-      // bottomContent={BottomContent}
-      classNames={{
-        wrapper:
-          "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-        base: "",
-        table: "card rounded-md",
-        tbody: "overflow-y-auto h-72 max-h-80",
-      }}
-    >
-      <TableHeader columns={columns}>
-        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-      </TableHeader>
-      <TableBody
-        items={rows}
-        emptyContent={"No rows to display."}
-        className=" "
+    <div className="w-full overflow-x-auto">
+      <Table
+        color="primary"
+        radius="sm"
+        selectionMode="none"
+        aria-label="Stocks table"
+        topContent={TopContent}
+        // bottomContent={BottomContent}
+        classNames={{
+          wrapper:
+            "card h-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+          table: "",
+          tbody: "overflow-y-auto divide-y card rounded-md",
+        }}
       >
-        {(item) => (
-          <TableRow key={item.key}>
-            {(columnKey) => (
-              <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        <TableHeader
+          columns={
+            fields ? columns.filter((col) => fields.includes(col.key)) : columns
+          }
+        >
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={stocks}
+          emptyContent={"No rows to display."}
+          className=" "
+        >
+          {(stock) => (
+            <TableRow key={stock.id}>
+              {(columnKey) => (
+                <TableCell>
+                  {columnKey === "date" ? (
+                    stock.date.toDateString()
+                  ) : columnKey === "supplier" ? (
+                    stock.supplier.name
+                  ) : columnKey === "totalCost" ? (
+                    stock.getTotalCost()
+                  ) : columnKey === "payment" ? (
+                    stock.payment?.amountPaid
+                  ) : columnKey === "actions" ? (
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => null}>
+                        View
+                      </Button>
+                      <Button size="sm" color="danger" onClick={() => null}>
+                        Delete
+                      </Button>
+                    </div>
+                  ) : (
+                    getKeyValue(stock, columnKey)
+                  )}
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
-const stockData = [
-  {
-    hash: "hash-1",
-    date: new Date().toDateString(),
-    product: "Tony Reichert",
-    quantity: 285,
-    price: 285,
-    expenses: 285,
-    verifications: 285,
-    createdBy: "Leogenius",
-    status: "Active",
-  },
-  {
-    hash: "hash-2",
-    date: new Date().toDateString(),
-    product: "Zoey Lang",
-    quantity: 453,
-    price: 453,
-    expenses: 453,
-    verifications: 453,
-    createdBy: "Technical Lead",
-    status: "Paused",
-  },
-  {
-    hash: "hash-3",
-    date: new Date().toDateString(),
-    product: "Jane Fisher",
-    quantity: 685,
-    price: 685,
-    expenses: 685,
-    verifications: 685,
-    createdBy: "Senior Developer",
-    status: "Active",
-  },
-  {
-    hash: "hash-4",
-    date: new Date().toDateString(),
-    product: "William Howard",
-    quantity: 34,
-    price: 34,
-    expenses: 34,
-    verifications: 34,
-    createdBy: "Community Manager",
-    status: "Vacation",
-  },
-];
+export const StockRequestsTable = ({
+  maxRow,
+  label,
+  fields,
+  filter,
+}: TableProps<StockRequest>) => {
+  const [requests, setStocks] = useState<StockRequest[] | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const TopContent = (
+    <h3 className="font-bold">{label ? label : "Stock requests"} </h3>
+  );
+  const BottomContent = <h3 className="font-bold">Recent in stock</h3>;
 
-const stockFields = [
-  {
-    key: "hash",
-    label: "HASH",
-  },
-  {
-    key: "date",
-    label: "DATE",
-  },
-  {
-    key: "product",
-    label: "PRODUCT ID",
-  },
-  {
-    key: "quantity",
-    label: "QUANTITY",
-  },
-  {
-    key: "price",
-    label: "PRICE",
-  },
-  {
-    key: "expenses",
-    label: "EXPENSES",
-  },
-  {
-    key: "verifications",
-    label: "VERIFICATIONS",
-  },
-  {
-    key: "createdBy",
-    label: "CREATED BY",
-  },
-  {
-    key: "status",
-    label: "STATUS",
-  },
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await StockRequest.getAll();
+        maxRow ? setStocks(data.slice(0, maxRow)) : setStocks(data);
+      } catch (e) {
+        console.error(e);
+        setError("Failed to load requests");
+      }
+    };
+    fetchData();
+  }, [maxRow]);
 
-export const CurrentStockTable = () => {
-  const TopContent = <h3 className="font-bold">Current stock</h3>;
-  const BottomContent = <h3 className="font-bold">Current stock</h3>;
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!requests) {
+    return <div>Loading requests...</div>;
+  }
+
+  const columns = [
+    { key: "date", label: "Date" },
+    { key: "products", label: "Products (name: qty)" },
+    { key: "supplier", label: "Supplier" },
+    { key: "pending", label: "Status" },
+    { key: "processedBy", label: "Processed by" },
+    { key: "actions", label: "Actions" },
+  ];
 
   return (
-    <Table
-      color="primary"
-      radius="sm"
-      selectionMode="single"
-      aria-label="table with dynamic content"
-      topContent={TopContent}
-      // bottomContent={BottomContent}
-      classNames={{
-        wrapper:
-          "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-        table: "card rounded-md",
-        tbody: "rounded-md",
-        th: "font-bold",
-      }}
-    >
-      <TableHeader columns={stockFields}>
-        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-      </TableHeader>
-      <TableBody
-        items={stockData}
-        emptyContent={"No rows to display."}
-        className=" "
+    <div className="w-full overflow-x-auto">
+      <Table
+        color="primary"
+        radius="sm"
+        selectionMode="none"
+        aria-label="Stocks table"
+        topContent={TopContent}
+        // bottomContent={BottomContent}
+        classNames={{
+          wrapper:
+            "card h-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+          table: "",
+          tbody: "overflow-y-auto divide-y card rounded-md",
+        }}
       >
-        {(item) => (
-          <TableRow key={item.hash}>
-            {(columnKey) => (
-              <TableCell
-                className={clsx("min-w-24", {
-                  // ["min-w-64"]: columnKey === "description",
-                  // ["min-w-48"]: columnKey === "products",
-                })}
-              >
-                {getKeyValue(item, columnKey)}
-              </TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        <TableHeader
+          columns={
+            fields ? columns.filter((col) => fields.includes(col.key)) : columns
+          }
+        >
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={requests}
+          emptyContent={"No rows to display."}
+          className=" "
+        >
+          {(req) => (
+            <TableRow key={req.id}>
+              {(columnKey) => (
+                <TableCell>
+                  {columnKey === "date" ? (
+                    req.date.toDateString()
+                  ) : columnKey === "products" ? (
+                    <div className="flex flex-wrap gap-1">
+                      {req.products.map((product) => (
+                        <Chip
+                          key={product.id}
+                          variant="flat"
+                          size="sm"
+                          radius="sm"
+                        >
+                          {product.name} : {product.qty}
+                        </Chip>
+                      ))}
+                    </div>
+                  ) : columnKey === "supplier" ? (
+                    req.supplier?.name
+                  ) : columnKey === "pending" ? (
+                    req.pending ? (
+                      "Pending"
+                    ) : (
+                      "Accepted"
+                    )
+                  ) : columnKey === "actions" ? (
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => null}>
+                        View
+                      </Button>
+                      <Button size="sm" color="danger" onClick={() => null}>
+                        Delete
+                      </Button>
+                    </div>
+                  ) : (
+                    getKeyValue(req, columnKey)
+                  )}
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
-const salesData = [
-  {
-    hash: "hash-1",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-  {
-    hash: "hash-2",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-  {
-    hash: "hash-3",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-  {
-    hash: "hash-4",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-  {
-    hash: "hash-5",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-  {
-    hash: "hash-6",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-  {
-    hash: "hash-7",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-  {
-    hash: "hash-8",
-    date: new Date().toDateString(),
-    products: "Tony Reichert, Tony Reichert, Tony Reichert, Tony Reichert",
-    description:
-      "Data Loading: The product data is fetched asynchronously, and appropriate loading states are shown until the data is available.",
-    payment: "285",
-    status: "Active",
-  },
-];
+export const SalesTable = ({
+  maxRow,
+  label,
+  fields,
+  filter,
+}: TableProps<Sales>) => {
+  const [sales, setSales] = useState<Sales[] | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const TopContent = <h3 className="font-bold">{label ? label : "Sales"} </h3>;
+  const BottomContent = <h3 className="font-bold">Recent in stock</h3>;
 
-const salesFields = [
-  {
-    key: "hash",
-    label: "HASH",
-  },
-  {
-    key: "date",
-    label: "DATE",
-  },
-  {
-    key: "products",
-    label: "PRODUCTS",
-  },
-  {
-    key: "description",
-    label: "DESCRIPTION",
-  },
-  {
-    key: "payment",
-    label: "PAYMENT",
-  },
-  {
-    key: "status",
-    label: "STATUS",
-  },
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await Sales.getAll();
+        maxRow ? setSales(data.slice(0, maxRow)) : setSales(data);
+      } catch (e) {
+        console.error(e);
+        setError("Failed to load sales");
+      }
+    };
+    fetchData();
+  }, [maxRow]);
 
-export const SalesTable = () => {
-  const TopContent = <h3 className="font-bold">Sales Data</h3>;
-  const BottomContent = <h3 className="font-bold">Current stock</h3>;
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!sales) {
+    return <div>Loading sales...</div>;
+  }
+
+  const columns = [
+    { key: "date", label: "Date" },
+    { key: "customer", label: "Customer" },
+    { key: "products", label: "Products (name: qty)" },
+    { key: "totalCost", label: "Total" },
+    { key: "expenses", label: "Expenses" },
+    { key: "payment", label: "Payment" },
+    { key: "delivery", label: "Delivery" },
+    { key: "processedBy", label: "Processed by" },
+    { key: "actions", label: "Actions" },
+  ];
 
   return (
-    <Table
-      color="primary"
-      radius="sm"
-      selectionMode="single"
-      aria-label="table with dynamic content"
-      topContent={TopContent}
-      // bottomContent={BottomContent}
-      classNames={{
-        wrapper:
-          "card w-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
-        table: "card rounded-md",
-        tbody: "rounded-md",
-        th: "font-bold",
-      }}
-    >
-      <TableHeader columns={salesFields}>
-        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-      </TableHeader>
-      <TableBody
-        items={salesData}
-        emptyContent={"No rows to display."}
-        className=" "
+    <div className="w-full overflow-x-auto">
+      <Table
+        color="primary"
+        radius="sm"
+        selectionMode="none"
+        aria-label="Stocks table"
+        topContent={TopContent}
+        // bottomContent={BottomContent}
+        classNames={{
+          wrapper:
+            "card h-full rounded-md border-emerald-200 bg-transparent shadow-inner drop-shadow-md dark:border-default",
+          table: "",
+          tbody: "overflow-y-auto divide-y card rounded-md",
+        }}
       >
-        {(item) => (
-          <TableRow key={item.hash}>
-            {(columnKey) => (
-              <TableCell
-                className={clsx("min-w-24", {
-                  ["min-w-64"]: columnKey === "description",
-                  ["min-w-48"]: columnKey === "products",
-                })}
-              >
-                {getKeyValue(item, columnKey)}
-              </TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        <TableHeader
+          columns={
+            fields ? columns.filter((col) => fields.includes(col.key)) : columns
+          }
+        >
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={sales}
+          emptyContent={"No rows to display."}
+          className=" "
+        >
+          {(sale) => (
+            <TableRow key={sale.id}>
+              {(columnKey) => (
+                <TableCell>
+                  {columnKey === "date" ? (
+                    sale.date.toDateString()
+                  ) : columnKey === "customer" ? (
+                    sale.customer?.name
+                  ) : columnKey === "products" ? (
+                    <div className="flex flex-wrap gap-1">
+                      {sale.products.map((product) => (
+                        <Chip
+                          key={product.id}
+                          variant="flat"
+                          size="sm"
+                          radius="sm"
+                        >
+                          {product.name} : {product.qty} @ {product.price}
+                        </Chip>
+                      ))}
+                    </div>
+                  ) : columnKey === "totalCost" ? (
+                    sale.getTotalPrice().toFixed(2)
+                  ) : columnKey === "delivery" ? (
+                    sale.delivery?.status
+                  ) : columnKey === "payment" ? (
+                    sale.payment?.amountPaid
+                  ) : columnKey === "actions" ? (
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => null}>
+                        View
+                      </Button>
+                      <Button size="sm" color="danger" onClick={() => null}>
+                        Delete
+                      </Button>
+                    </div>
+                  ) : (
+                    getKeyValue(sale, columnKey)
+                  )}
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

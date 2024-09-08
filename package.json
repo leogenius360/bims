@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.4.1",
+    "@openzeppelin/contracts": "^5.0.2",
     "@react-stately/data": "^3.11.4",
     "bootstrap": "^5.3.3",
+    "dotenv": "^16.4.5",
     "firebase": "^10.12.2",
     "framer-motion": "^11.0.25",
     "next": "^14.2.3",
@@ -28,19 +30,23 @@
     "tailwind-merge": "^2.4.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@types/node": "^22.5.4",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "daisyui": "^4.12.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.22.10",
     "postcss": "^8",
     "prettier": "^3.3.0",
     "prettier-plugin-tailwindcss": "^0.6.1",
     "sass": "^1.77.2",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   },
   "prettier": {
     "plugins": [

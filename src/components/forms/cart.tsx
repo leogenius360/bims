@@ -10,6 +10,7 @@ import {
 import { useStockCart } from "@/stock/provider";
 import Link from "next/link";
 import { internalUrls } from "@/config/site-config";
+import { useRouter } from "next/navigation";
 
 interface CartFormProps {
   salesModal?: UseDisclosureProps;
@@ -98,6 +99,7 @@ interface StockCartFormProps {
   newStockModal?: UseDisclosureProps;
 }
 export const UpdateStockCartForm = ({ newStockModal }: StockCartFormProps) => {
+  const router = useRouter();
   const { stockCart, getTotalStockCost, removeStockProduct } = useStockCart();
 
   return (
@@ -152,6 +154,7 @@ export const UpdateStockCartForm = ({ newStockModal }: StockCartFormProps) => {
             </Button>
 
             <Button
+              onClick={() => router.push(internalUrls.home)}
               variant="ghost"
               color="primary"
               className="w-full rounded font-bold"
@@ -164,6 +167,7 @@ export const UpdateStockCartForm = ({ newStockModal }: StockCartFormProps) => {
           </div>
         ) : (
           <Button
+            onClick={() => router.push(internalUrls.home)}
             variant="ghost"
             color="primary"
             className="w-full rounded font-bold"
