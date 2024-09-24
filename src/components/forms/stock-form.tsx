@@ -274,6 +274,7 @@ export const StockForm = ({ newStockModal }: StockFormProps) => {
                       />
 
                       <Input
+                        required
                         label={
                           <span className="text-gray-800 dark:text-gray-300">
                             Contact

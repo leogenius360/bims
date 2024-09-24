@@ -8,7 +8,7 @@ PROJECT_DIR=$(shell pwd)
 
 help: ## Display all callable targets.
 	@echo =========================================================================
-	@echo "Project name: $(PROJECT_NAME)" 
+	@echo "Project name: $(PROJECT_NAME)"
 	@echo =========================================================================
 	@echo
 	@echo "Commands		Description"

@@ -147,8 +147,8 @@ export const allowedUsers = [...admins, ...sales, ...delivery]
 
 
 export const support = {
-	phone: "tel:+233241301463",
-	whatsapp: "https://wa.me/233241301463",
+	phone: "tel:+233593359981",
+	whatsapp: "https://wa.me/233593359981",
 	mail: "support24@bims.com"
 }
 

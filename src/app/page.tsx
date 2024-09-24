@@ -24,25 +24,38 @@ const LandingPage = () => {
   const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchCategoriesAndProducts = async () => {
+    const fetchProducts = async () => {
       try {
-        setLoading(true); // Start loading
-
-        const [allProducts, allCategories] = await Promise.all([
-          Product.getAll(),
-          ProductCategory.getAll(),
-        ]);
+        const allProducts = await Product.getAll();
 
         setProducts(allProducts);
-        setCategories(allCategories.map((cat) => cat.label));
       } catch (err) {
-        setError("Failed to fetch products or categories.");
+        setError("Failed to fetch products.");
       } finally {
         setLoading(false); // Stop loading
       }
     };
 
-    fetchCategoriesAndProducts();
+    const fetchCategories = async () => {
+      try {
+        setLoading(true); // Start loading
+
+        const allCategories = await ProductCategory.getAll();
+        setCategories(allCategories.map((cat) => cat.label));
+      } catch (err) {
+        setError("Failed to fetch products or categories.");
+      } finally {
+      }
+    };
+
+    try {
+      setLoading(true); // Start loading
+
+      fetchProducts();
+      fetchCategories();
+    } finally {
+      setLoading(false); // Stop loading
+    }
   }, []);
 
   const selectedCategoriesString = useMemo(

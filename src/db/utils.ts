@@ -6,13 +6,13 @@ export class ProductCategory {
     label: string
     addedBy: string
 
-    constructor({ label, addedBy }: {label: string, addedBy:string}) {
+    constructor({ label, addedBy }: { label: string, addedBy: string }) {
         this.id = `product::category:${label.toLowerCase()}`
         this.label = label
         this.addedBy = addedBy
     }
 
-    
+
     static async get(id: string): Promise<ProductCategory | null> {
         const docRef = doc(db, 'Product Categories', id);
         const docSnap = await getDoc(docRef);

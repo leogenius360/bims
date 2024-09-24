@@ -3,12 +3,15 @@ import { doc, getDoc, getDocs, collection, setDoc, updateDoc, deleteDoc } from "
 import { Product } from "./product";
 import { User } from "firebase/auth";
 import { BaseUser } from "@/types/db";
+import { Transaction } from "./transaction";
 
 
 export interface TransactionVerification {
     user: BaseUser | User;
     isVerified: boolean;
 }
+
+
 export interface SalesProductProps {
     id: string;
     name: string;
@@ -16,16 +19,20 @@ export interface SalesProductProps {
     qty: number;
 }
 
+
 export enum PaymentStatus {
     FullPayment = "full payment",
     PartPayment = "part payment",
 }
+
 
 export interface PaymentProps {
     amountPaid?: number;
     balance?: number;
     status?: PaymentStatus;
 }
+
+
 export interface DeliveryProps {
     user?: BaseUser;
     status?: string | "instant take off" | "delivered" | "delivering" | "pending";
@@ -49,6 +56,7 @@ export interface SalesProps {
     delivery?: DeliveryProps;
     description: string;
 }
+
 
 export class Sales {
     id: string;
@@ -143,7 +151,7 @@ export class Sales {
             } else throw Error(`Product ${product.name} does not exist in products`) // else remove the product `p` from the sales products
         }
         const docRef = doc(db, 'Sales', this.id);
-        await setDoc(docRef, {
+        const data = {
             id: this.id,
             description: this.description,
             products: this.products,
@@ -154,7 +162,10 @@ export class Sales {
             verifications: this.verifications,
             processedBy: this.processedBy,
             date: new Date()
-        });
+        }
+        await setDoc(docRef, data);
+        const trans = new Transaction({ signer: { email: data.processedBy }, data, action: "create" })
+        await trans.save()
     }
 
     async updatePayment({ amountPaid }: { amountPaid: number }): Promise<void> {
@@ -162,11 +173,14 @@ export class Sales {
         if (!this.payment) this.payment = { amountPaid: 0 }
         const currentAmount = this.payment.amountPaid! + amountPaid;
         const totalPrice = await this.getTotalPrice();
-        await updateDoc(docRef, {
+        const data = {
             'payment.amountPaid': currentAmount,
             'payment.balance': totalPrice - currentAmount,
             'payment.status': currentAmount >= totalPrice ? PaymentStatus.FullPayment : PaymentStatus.PartPayment,
-        });
+        }
+        await updateDoc(docRef, data);
+        const trans = new Transaction({ signer: { email: this.processedBy }, data, action: "update" })
+        await trans.save()
     }
 
     async updateDelivery(delivery: DeliveryProps): Promise<void> {
@@ -174,6 +188,8 @@ export class Sales {
         await updateDoc(docRef, {
             delivery: delivery
         });
+        const trans = new Transaction({ signer: { email: this.processedBy }, data: { delivery: delivery }, action: "update" })
+        await trans.save()
     }
 
     async delete(): Promise<void> {
@@ -184,6 +200,8 @@ export class Sales {
             if (!data.payment.status.includes(PaymentStatus.FullPayment)) {
                 await deleteDoc(docRef);
             }
+            const trans = new Transaction({ signer: { email: this.processedBy }, data, action: "delete" })
+            await trans.save()
         }
     }
 
@@ -195,5 +213,7 @@ export class Sales {
         }
         this.verifications.push({ user: user, isVerified: true });
         await updateDoc(docRef, { verifications: this.verifications });
+        const trans = new Transaction({ signer: { email: this.processedBy }, data: { verifications: this.verifications }, action: "delete" })
+        await trans.save()
     }
 }

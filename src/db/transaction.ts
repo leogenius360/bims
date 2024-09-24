@@ -1,23 +1,26 @@
 import { db } from "@/config/firebase-config"
 import { BaseUser } from "@/types/db"
 import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore"
+import jwt from "jsonwebtoken/index"
 
 export class Transaction {
     hash!: string
     prevHash!: string
     timestamp!: Date
     signer: BaseUser
-    data?: object
+    data?: any
     action: "create" | "update" | "delete"
 
     constructor({ signer, data, action }: {
         signer: BaseUser,
-        data?: object,
+        data?: any,
         action: "create" | "update" | "delete"
     }) {
         this.signer = signer
         this.data = data
         this.action = action
+        this.hash = jwt.sign(data, null)
+        this.prevHash = data
     }
 
     static async get(id: string): Promise<Transaction | null> {

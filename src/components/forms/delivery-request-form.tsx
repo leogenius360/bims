@@ -44,6 +44,7 @@ export const SalesForm = ({ salesModal }: StockFormProps) => {
     customer: { name: "" },
     delivery: { status: "instant take off" },
     description: "",
+    processedBy: user.email,
   });
   const [errors, setErrors] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -132,9 +133,8 @@ export const SalesForm = ({ salesModal }: StockFormProps) => {
     }
 
     try {
-      const sales = new Sales({ ...formData }, user as BaseUser);
-      sales.processedBy = user?.email!;
-      await sales.save();
+      const stock = new Sales({ ...formData }, user as BaseUser);
+      await stock.save();
       setLoading(false);
       clearCart();
       setFormData({

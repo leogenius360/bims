@@ -11,10 +11,6 @@ import Link from "next/link";
 const StockPage = () => {
   const { user } = useAuth();
 
-  if (!user || (!isAdminUser(user!) && !isSalesUser(user))) {
-    return <AccessDenied />;
-  }
-
   return (
     <section className="inline-block w-full px-3">
       <StocksTable />

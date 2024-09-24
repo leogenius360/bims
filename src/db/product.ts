@@ -5,6 +5,7 @@ import { BaseUser } from '@/types/db';
 import { StockRequestProduct } from '@/stock-request/provider';
 import { isAdminUser } from '@/auth/utils';
 import { User } from 'firebase/auth';
+import { Transaction } from './transaction';
 
 
 export interface ProductStockProps {
@@ -23,10 +24,6 @@ export interface NewProductProps {
     description?: string
 }
 
-// export enum InventoryMethod {
-//     LIFO = 'LIFO',
-//     FIFO = 'FIFO',
-// }
 
 export class Product {
     id: string;
@@ -130,17 +127,19 @@ export class Product {
 
     async save(): Promise<void> {
         const docRef = doc(db, 'Products', this.id);
-        await setDoc(docRef, {
+        const data = {
             name: this.name,
             price: this.price,
             stock: this.stock,
-            // inventoryMethod: this.inventoryMethod,
             imageUrl: this.imageUrl,
             category: this.category,
             description: this.description || "",
             latestUpdateBy: this.latestUpdateBy || "",
             latestUpdateDate: new Date()
-        });
+        }
+        await setDoc(docRef, data);
+        const trans = new Transaction({ signer: { email: this.latestUpdateBy! }, data, action: "create" })
+        await trans.save()
     }
 
     async update(data: Partial<Product>, authUser?: BaseUser): Promise<void> {
@@ -148,6 +147,8 @@ export class Product {
         if (authUser) data.latestUpdateBy = authUser?.displayName ? authUser.displayName : authUser?.email ? authUser.email : undefined;
         data.latestUpdateDate = new Date();
         await updateDoc(docRef, { ...data });
+        const trans = new Transaction({ signer: { email: data.latestUpdateBy! }, data, action: "update" })
+        await trans.save()
     }
 
     async updateStock({ qty, isSales, pending = true }: { qty: number, isSales?: boolean, pending?: boolean }): Promise<void> {
@@ -167,11 +168,15 @@ export class Product {
         }
 
         await this.save()
+        const trans = new Transaction({ signer: { email: this.latestUpdateBy! }, data: { qty, isSales, pending }, action: "update" })
+        await trans.save()
     }
 
     static async delete(id: string): Promise<void> {
         const docRef = doc(db, 'Products', id);
         await deleteDoc(docRef);
+        const trans = new Transaction({ signer: { email: "" }, data: { id }, action: "delete" })
+        await trans.save()
     }
 }
 
@@ -280,7 +285,7 @@ export class Stock {
             } else throw Error(`Product ${product.name} does not exist in products`) // else remove the product `p` the stock products
         }
         const docRef = doc(db, 'Stocks', this.id);
-        await setDoc(docRef, {
+        const data = {
             id: this.id,
             products: this.products,
             payment: this.payment || {},
@@ -290,7 +295,10 @@ export class Stock {
             verifications: this.verifications,
             processedBy: this.processedBy,
             date: new Date()
-        });
+        }
+        await setDoc(docRef, data);
+        const trans = new Transaction({ signer: { email: data.processedBy }, data, action: "create" })
+        await trans.save()
     }
 
     async updatePayment({ amountPaid }: { amountPaid: number }): Promise<void> {
@@ -298,11 +306,14 @@ export class Stock {
         if (!this.payment) this.payment = { amountPaid: 0 }
         const currentAmount = this.payment.amountPaid! + amountPaid;
         const totalPrice = await this.getTotalCost();
-        await updateDoc(docRef, {
+        const data = {
             'payment.amountPaid': currentAmount,
             'payment.balance': totalPrice - currentAmount,
             'payment.status': currentAmount >= totalPrice ? PaymentStatus.FullPayment : PaymentStatus.PartPayment,
-        });
+        }
+        await updateDoc(docRef, data);
+        const trans = new Transaction({ signer: { email: this.processedBy }, data, action: "update" })
+        await trans.save()
     }
 
     async delete(): Promise<void> {
@@ -312,6 +323,8 @@ export class Stock {
             const data = docSnap.data();
             if (!data.payment.status.includes(PaymentStatus.FullPayment)) {
                 await deleteDoc(docRef);
+                const trans = new Transaction({ signer: { email: this.processedBy }, data, action: "delete" })
+                await trans.save()
             }
         }
     }
@@ -328,13 +341,17 @@ export class Stock {
         }
         this.verifications.push({ user: user, isVerified: true });
         await updateDoc(docRef, { verifications: this.verifications });
+        const trans = new Transaction({ signer: user, data:{id:this.id, isVerified:this.isVerified}, action: "update" })
+        await trans.save()
     }
 }
+
 
 export interface StockRequestProps {
     products: StockRequestProduct[];
     supplier: SupplierProps
 }
+
 
 export class StockRequest {
     id: string;
@@ -413,7 +430,7 @@ export class StockRequest {
             isVerified: verification.isVerified,
         }));
 
-        await setDoc(docRef, {
+        const data = {
             id: this.id,
             products: this.products,
             supplier: this.supplier,
@@ -421,7 +438,10 @@ export class StockRequest {
             verifications: serializedVerifications,
             processedBy: this.processedBy,
             date: new Date()
-        });
+        }
+        await setDoc(docRef, data);
+        const trans = new Transaction({ signer: { email: data.processedBy }, data, action: "create" })
+        await trans.save()
     }
 
 
@@ -433,6 +453,8 @@ export class StockRequest {
             if (!data.payment.status.includes(PaymentStatus.FullPayment)) {
                 await deleteDoc(docRef);
             }
+            const trans = new Transaction({ signer: { email: data.processedBy }, data, action: "delete" })
+            await trans.save()
         }
     }
 
@@ -444,6 +466,8 @@ export class StockRequest {
         }
         this.verifications.push({ user: user, isVerified: true });
         await updateDoc(docRef, { verifications: this.verifications });
+        const trans = new Transaction({ signer: user, data: { isVerified: true, verifications: this.verifications }, action: "update" })
+        await trans.save()
     }
 }
 

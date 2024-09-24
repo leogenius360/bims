@@ -378,7 +378,7 @@ export const SalesTable = ({
         maxRow ? setTransactions(data.slice(0, maxRow)) : setTransactions(data);
       } catch (e) {
         console.error(e);
-        setError("Failed to load transactions");
+        setError("Failed to load sales");
       }
     };
     fetchData();
@@ -389,7 +389,7 @@ export const SalesTable = ({
   }
 
   if (!transactions) {
-    return <div>Loading transactions...</div>;
+    return <div>Loading sales...</div>;
   }
 
   const columns = [

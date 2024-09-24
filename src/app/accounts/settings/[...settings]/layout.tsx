@@ -1,6 +1,4 @@
 import { Metadata } from "next";
-import { Link } from "@nextui-org/link";
-import clsx from "clsx";
 import { siteConfig } from "@/config/site-config";
 
 export const metadata: Metadata = {
