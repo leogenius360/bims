@@ -94,7 +94,7 @@ export const HomePageHeader = ({
       </div>
 
       <div className="flex items-center gap-3">
-        {isDeliveryUser(user) && (
+        {/* {isDeliveryUser(user) && (
           <Button
             data-bs-toggle="offcanvas"
             data-bs-target="#inStockForm"
@@ -108,7 +108,7 @@ export const HomePageHeader = ({
           >
             Request delivery
           </Button>
-        )}
+        )} */}
 
         {isSalesUser(user) &&
           (stockCart.length ? (

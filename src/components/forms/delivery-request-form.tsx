@@ -44,7 +44,6 @@ export const SalesForm = ({ salesModal }: StockFormProps) => {
     customer: { name: "" },
     delivery: { status: "instant take off" },
     description: "",
-    processedBy: user.email,
   });
   const [errors, setErrors] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -134,6 +133,7 @@ export const SalesForm = ({ salesModal }: StockFormProps) => {
 
     try {
       const stock = new Sales({ ...formData }, user as BaseUser);
+      stock.processedBy = user?.email!;
       await stock.save();
       setLoading(false);
       clearCart();
@@ -167,7 +167,7 @@ export const SalesForm = ({ salesModal }: StockFormProps) => {
         {(onClose) => (
           <>
             <ModalHeader className="py-2 text-sm">
-              Sales checkout form
+              Delivery request form
             </ModalHeader>
             <ModalBody className="custom-scrollbar">
               <div className="flex flex-wrap gap-1">
