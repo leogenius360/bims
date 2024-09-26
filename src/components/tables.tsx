@@ -107,14 +107,9 @@ export const ProductsTable = ({
                   ) : columnKey === "stock" ? (
                     product.stock.qty
                   ) : columnKey === "actions" ? (
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => null}>
-                        View
-                      </Button>
-                      <Button size="sm" color="danger" onClick={() => null}>
-                        Delete
-                      </Button>
-                    </div>
+                    <Button size="sm" color="danger" onClick={()=>Product.delete(product.id)}>
+                      Delete
+                    </Button>
                   ) : (
                     getKeyValue(product, columnKey)
                   )}
@@ -215,14 +210,9 @@ export const StocksTable = ({
                   ) : columnKey === "payment" ? (
                     stock.payment?.amountPaid
                   ) : columnKey === "actions" ? (
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => null}>
-                        View
-                      </Button>
-                      <Button size="sm" color="danger" onClick={() => null}>
-                        Delete
-                      </Button>
-                    </div>
+                    <Button size="sm" color="danger" onClick={stock.delete}>
+                      Delete
+                    </Button>
                   ) : (
                     getKeyValue(stock, columnKey)
                   )}
@@ -337,14 +327,9 @@ export const StockRequestsTable = ({
                       "Accepted"
                     )
                   ) : columnKey === "actions" ? (
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => null}>
-                        View
-                      </Button>
-                      <Button size="sm" color="danger" onClick={() => null}>
-                        Delete
-                      </Button>
-                    </div>
+                    <Button size="sm" color="danger" onClick={req.delete}>
+                      Delete
+                    </Button>
                   ) : (
                     getKeyValue(req, columnKey)
                   )}
@@ -462,14 +447,9 @@ export const SalesTable = ({
                   ) : columnKey === "payment" ? (
                     sale.payment?.amountPaid
                   ) : columnKey === "actions" ? (
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => null}>
-                        View
-                      </Button>
-                      <Button size="sm" color="danger" onClick={() => null}>
-                        Delete
-                      </Button>
-                    </div>
+                    <Button size="sm" color="danger" onClick={sale.delete}>
+                      Delete
+                    </Button>
                   ) : (
                     getKeyValue(sale, columnKey)
                   )}
